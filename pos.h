@@ -4,7 +4,7 @@ class pos
 {
     float x;
     float y;
-    pos(float x,float y):x(x),y(y){};
+    pos(float x,float y):x(x),y(y){}
 
     pos toS(float w, float h);
     pos toW(float w, float h);
