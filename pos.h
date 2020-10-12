@@ -13,13 +13,55 @@ public:
     pos(float x,float y,float w,float h):
         x(x),y(y),w(w),h(h){}
 
-    pos toS();
-    pos toW();
-    pos toE();
-    pos toFN();
-    pos toFS();
-    pos toFW();
-    pos toFE();
+    pos toS()
+    {
+        if(this->isOrigin==true)
+            return pos(-this->x,-this->y,this->w,this->h);
+        else
+            return pos(this->w-this->x,this->h-this->y,this->w,this->h);
+    }
+    pos toW()
+    {
+        if(this->isOrigin==true)
+            return pos(-this->x,this->y,this->w,this->h);
+        else
+            return pos(this->h-this->y,this->w-this->x,this->h,this->w);
+    }
+    pos toE()
+    {
+        if(this->isOrigin==true)
+            return pos(this->x,-this->y,this->w,this->h);
+        else
+            return pos(this->y,this->w-this->x,this->h,this->w);
+    }
+    pos toFN()
+    {
+        if(this->isOrigin==true)
+            return pos(-this->x,this->y,this->w,this->h);
+        else
+            return pos(this->w-this->x,this->y,this->w,this->h);
+    }
+    pos toFS()
+    {
+        if(this->isOrigin==true)
+            return pos(this->x,-this->y,this->w,this->h);
+        else
+            return pos(this->x,this->w-this->y,this->w,this->h);
+    }
+    pos toFW()
+    {
+        if(this->isOrigin==true)
+            return pos(this->y,this->x,this->h,this->w);
+        else
+            return pos(this->y,this->x,this->h,this->w);
+    }
+    pos toFE()
+    {
+        if(this->isOrigin==true)
+            return pos(-this->y,-this->x,this->h,this->w);
+        else
+            return pos(this->h-this->y,this->w-this->x,this->h,this->w);
+    }
     void setToCell(float cellX, float cellY)
     {
         this->x+=cellX;
