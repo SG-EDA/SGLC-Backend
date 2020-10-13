@@ -7,6 +7,6 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    defParser.h \
     defStru.h \
-    parser.h \
     pos.h

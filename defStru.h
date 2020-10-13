@@ -17,7 +17,7 @@ struct component
         component com;
 
         stri=stri.replace("  "," ");
-        QStringList strList=stri.split(" ");
+        QStringList strList=stri.split(" "); //只能解析空格分割
 
         bool leftBrack=false;
         bool oneNum=false;

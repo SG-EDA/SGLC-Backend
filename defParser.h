@@ -2,7 +2,7 @@
 #include "defStru.h"
 #include <QStringList>
 
-class parser
+class defParser
 {
 private:
     QStringList codeList;
@@ -111,7 +111,7 @@ public:
     vector<pin> allPin;
     vector<net> allNet;
 
-    parser(QString code)
+    defParser(QString code)
     {
         this->codeList=code.split("\n");
         for(int i=0;i<this->codeList.length();i++)

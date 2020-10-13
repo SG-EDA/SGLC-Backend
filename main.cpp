@@ -1,4 +1,6 @@
 #include <iostream>
+#include "defParser.h"
+#include "pos.h"
 
 using namespace std;
 
