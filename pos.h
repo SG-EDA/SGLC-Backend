@@ -62,7 +62,7 @@ public:
         else
             return pos(this->h-this->y,this->w-this->x,this->h,this->w);
     }
-    void setToCell(float cellX, float cellY)
+    void setToCell(float setX, float setY)
     {
 
     }
