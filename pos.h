@@ -5,13 +5,13 @@ class pos
 private:
     float w;
     float h;
-    bool isOrigin;
+    bool isOrigin; //中心原点
 
 public:
     float x;
     float y;
-    pos(float x,float y,float w,float h):
-        x(x),y(y),w(w),h(h){}
+    pos(float x,float y,float w,float h,bool isOrigin=false):
+        x(x),y(y),w(w),h(h),isOrigin(isOrigin){}
 
     pos toS()
     {
@@ -64,9 +64,7 @@ public:
     }
     void setToCell(float cellX, float cellY)
     {
-        this->x+=cellX;
-        this->y+=cellY;
-        this->isOrigin=true;
+
     }
     bool getIsOrigin() { return this->isOrigin; }
 };

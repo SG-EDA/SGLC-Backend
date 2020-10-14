@@ -4,6 +4,9 @@
 #include <QStringList>
 using namespace std;
 
+namespace DEF
+{
+
 struct component
 {
     QString instName;
@@ -92,3 +95,5 @@ struct net
 
     net(QString name):name(name){}
 };
+
+}

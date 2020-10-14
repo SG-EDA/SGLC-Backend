@@ -13,7 +13,7 @@ private:
         {
             QString stri=this->codeList[i];
             if(stri.indexOf("inst")!=-1)
-                this->allComponent.push_back(component::get(stri));
+                this->allComponent.push_back(DEF::component::get(stri));
             else if(stri=="END COMPONENTS")
                 return j;
         }
@@ -25,7 +25,7 @@ private:
 
     }
 
-    int getPin(int i, net &n)
+    int getPin(int i, DEF::net &n)
     {
         for(int j=i;j<this->codeList.length();j++)
         {
@@ -43,7 +43,7 @@ private:
                         bool isMeetFirst=false; //识别到pinname
                         bool isSpace=false; //有没有遇到中间空格
                         bool finished=false;
-                        pin p;
+                        DEF::pin p;
                         for(;stri[i]!=')';i++)
                         {
                             auto c=stri[i];
@@ -96,7 +96,7 @@ private:
             QString stri=this->codeList[i];
             if(stri.indexOf("net")!=-1)
             {
-                net n(getNetName(stri));
+                DEF::net n(getNetName(stri));
                 i=this->getPin(i,n);
                 this->allNet.push_back(n);
             }
@@ -107,9 +107,9 @@ private:
     }
 
 public:
-    vector<component> allComponent;
-    vector<pin> allPin;
-    vector<net> allNet;
+    vector<DEF::component> allComponent;
+    vector<DEF::pin> allPin;
+    vector<DEF::net> allNet;
 
     defParser(QString code)
     {
