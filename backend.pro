@@ -9,5 +9,7 @@ SOURCES += \
 HEADERS += \
     defParser.h \
     defStru.h \
+    help.h \
+    lefParser.h \
     lefStru.h \
     pos.h

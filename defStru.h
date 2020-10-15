@@ -2,6 +2,7 @@
 #include <QString>
 #include <vector>
 #include <QStringList>
+#include "help.h"
 using namespace std;
 
 namespace DEF
@@ -18,10 +19,7 @@ struct component
     static component get(QString stri)
     {
         component com;
-
-        stri=stri.replace("  "," ");
-        QStringList strList=stri.split(" "); //只能解析空格分割
-
+        QStringList strList=help::splitSpace(stri);
         bool leftBrack=false;
         bool oneNum=false;
         bool rightBrack=false;
@@ -41,7 +39,7 @@ struct component
             {
                 if(rightBrack==false)
                 {
-                    if(VerifyNumber(i))
+                    if(help::VerifyNumber(i))
                     {
                         if(oneNum==false)
                         {
@@ -67,18 +65,6 @@ struct component
             }
         }
         return com;
-    }
-
-private:
-    static bool VerifyNumber(QString str)
-    {
-        std::string temp = str.toStdString();
-        for (int i = 0; i < str.length(); i++)
-        {
-            if (temp[i]<'0' || temp[i]>'9')
-                return false;
-        }
-        return true;
     }
 };
 

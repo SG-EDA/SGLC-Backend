@@ -11,7 +11,7 @@ private:
     {
         for(int j=i;j<this->codeList.length();j++)
         {
-            QString stri=this->codeList[i];
+            QString stri=this->codeList[j];
             if(stri.indexOf("inst")!=-1)
                 this->allComponent.push_back(DEF::component::get(stri));
             else if(stri=="END COMPONENTS")
@@ -29,7 +29,7 @@ private:
     {
         for(int j=i;j<this->codeList.length();j++)
         {
-            QString stri=this->codeList[i];
+            QString stri=this->codeList[j];
             if(stri.indexOf(";"))
                 return j;
             else
@@ -93,11 +93,11 @@ private:
 
         for(int j=i;j<this->codeList.length();j++)
         {
-            QString stri=this->codeList[i];
+            QString stri=this->codeList[j];
             if(stri.indexOf("net")!=-1)
             {
                 DEF::net n(getNetName(stri));
-                i=this->getPin(i,n);
+                j=this->getPin(j,n);
                 this->allNet.push_back(n);
             }
             else if(stri=="END NETS")
