@@ -7,6 +7,7 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    QString.h \
     defParser.h \
     defStru.h \
     help.h \
