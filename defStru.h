@@ -20,48 +20,23 @@ struct component
     {
         component com;
         QStringList strList=help::splitSpace(stri);
-        bool leftBrack=false;
-        bool oneNum=false;
-        bool rightBrack=false;
 
-        for(QString i : strList)
+        for(int i=0;i<strList.length();i++)
         {
-            if(leftBrack==false)
+            if(strList[i]=="-")
             {
-                if(i.indexOf("inst"))
-                    com.instName=i;
-                else if(i.indexOf("CELL"))
-                    com.cellName=i;
-                else if(i=="(") //进入左括号状态
-                    leftBrack=true;
+                com.instName=strList[i+1];
+                com.cellName=strList[i+2];
             }
-            else //左括号状态
+            else if(strList[i]=="(")
             {
-                if(rightBrack==false)
-                {
-                    if(help::VerifyNumber(i))
-                    {
-                        if(oneNum==false)
-                        {
-                            com.x=i.toFloat();
-                            oneNum=true;
-                        }
-                        else
-                        {
-                            com.y=i.toFloat();
-                        }
-                    }
-                    else
-                    {
-                        if(i==")") //进入找方向状态
-                            rightBrack=true;
-                    }
-                }
-                else //找方向
-                {
-                    com.dire=i;
-                    break;
-                }
+                com.x=strList[i+1].toFloat();
+                com.y=strList[i+2].toFloat();
+            }
+            else if(strList[i]==")")
+            {
+                com.dire=strList[i+1];
+                break;
             }
         }
         return com;

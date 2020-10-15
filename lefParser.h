@@ -19,14 +19,18 @@ private:
         {
             QString stri=this->codeList[j];
             if(stri.indexOf("LAYER")!=-1)
-                p.layer=help::getLastElm(this->codeList[j],"LAYER");
-            else if(stri.indexOf("RECT")!=-1)
+                p.layer=help::getLastElm(stri,"LAYER");
+            else if(stri.indexOf("RECT ")!=-1)
             {
                 rect r=rect::getRect(stri,c.sizeA1,c.sizeA2);
                 p.allRect.push_back(r);
+
             }
-            else if(stri.indexOf("END "+p.name))
+            else if(stri.indexOf("END "+p.name)!=-1)
+            {
+                c.allPin.push_back(p);
                 return j;
+            }
         }
         return -1;
     }
@@ -69,7 +73,7 @@ public:
         for(int i=0;i<codeList.length();i++)
         {
             QString stri=codeList[i];
-            if(findCell==false || stri=="MACRO "+cellName) //找到CELL位置，进状态
+            if(findCell==false && stri=="MACRO "+cellName) //找到CELL位置，进状态
             {
                 c.name=cellName;
                 findCell=true;
@@ -81,18 +85,18 @@ public:
                     QStringList sizeList=help::splitSpace(stri);
                     for(int j=0;j<sizeList.size();j++)
                     {
-                        if(help::VerifyNumber(sizeList[j]))
+                        if(sizeList[j]=="SIZE")
                         {
-                            c.sizeA1=sizeList[j].toFloat();
-                            c.sizeA2=sizeList[j+1].toFloat();
+                            c.sizeA1=sizeList[j+1].toFloat();
+                            c.sizeA2=sizeList[j+3].toFloat();
                             break;
                         }
                     }
                 }
                 else if(stri.indexOf("PIN")!=-1)
-                    i=lefParser::getPin(i,c);
+                    i=this->getPin(i,c);
                 else if(stri.indexOf("OBS")!=-1)
-                    i=lefParser::getOBS(i+1,c);
+                    i=this->getOBS(i+1,c);
                 else if(stri=="END "+cellName)
                     break;
             }

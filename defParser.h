@@ -22,7 +22,12 @@ private:
 
     int parsePins(int i)
     {
-
+        for(int j=i;j<this->codeList.length();j++)
+        {
+            QString stri=this->codeList[j];
+            if(stri=="END PINS")
+                return j;
+        }
     }
 
     int getPin(int i, DEF::net &n)
@@ -30,53 +35,19 @@ private:
         for(int j=i;j<this->codeList.length();j++)
         {
             QString stri=this->codeList[j];
-            if(stri.indexOf(";"))
+            if(stri.indexOf(";")!=-1)
                 return j;
             else
             {
-                //拆括号
-                for(int i=0;i<stri.length();i++)
+                QStringList strList=help::splitSpace(stri);
+                for(int i=0;i<strList.length();i++)
                 {
-                    if(stri[i]=='(') //进入单个括号状态
+                    if(strList[i]=="(")
                     {
-                        i++; //前进到左括号后
-                        bool isMeetFirst=false; //识别到pinname
-                        bool isSpace=false; //有没有遇到中间空格
-                        bool finished=false;
                         DEF::pin p;
-                        for(;stri[i]!=')';i++)
-                        {
-                            auto c=stri[i];
-                            if(isSpace==false) //还在找pinname
-                            {
-                                if(isMeetFirst==false) //还在前面空格
-                                {
-                                    if(c!=' ') //遇到非空格出状态
-                                        isMeetFirst=false;
-                                    continue;
-                                }
-                                else //正在查pinname
-                                {
-                                    if(c==' ') //遇到空格出状态
-                                        isSpace=false;
-                                    else
-                                        p.pinName+=QString(c);
-                                }
-                            }
-                            else //找cellname
-                            {
-                                if(c==')') //出状态，准备进下个括号
-                                {
-                                    i++; //准备进行下一个括号
-                                    n.allPin.push_back(p);
-                                    break; //跳出循环
-                                }
-                                else if(c==' ') //出状态，找反括号
-                                    finished=true;
-                                else if(finished==false) //正常字符
-                                    p.comName+=QString(c);
-                            }
-                        }
+                        p.comName=strList[i+1];
+                        p.pinName=strList[i+2];
+                        n.allPin.push_back(p);
                     }
                 }
             }
