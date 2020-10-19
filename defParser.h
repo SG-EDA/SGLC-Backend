@@ -45,7 +45,7 @@ private:
                     if(strList[i]=="(")
                     {
                         DEF::pin p;
-                        p.comName=strList[i+1];
+                        p.instName=strList[i+1];
                         p.pinName=strList[i+2];
                         n.allPin.push_back(p);
                     }

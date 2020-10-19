@@ -52,7 +52,7 @@ struct pin
 struct net
 {
     QString name;
-    vector<pin> allPin;
+    vector<pin> allPin; //连接这些pin
 
     net(QString name):name(name){}
 };

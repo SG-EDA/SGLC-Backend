@@ -43,17 +43,35 @@ struct pin
     QString name;
     QString layer;
     vector<rect> allRect;
+
+    void setToLayout(float setX, float setY, QString dire)
+    {
+        for(rect &r : this->allRect)
+        {
+            r.p1.setDire(dire);
+            r.p1.setToLayout(setX,setY);
+            r.p2.setDire(dire);
+            r.p2.setToLayout(setX,setY);
+        }
+    }
 };
 
 typedef map<QString,vector<rect>> obs; //金属,obs块
 
 struct cell
 {
-    QString name;
+    QString cellName;
+    QString instName; //用于在layout中反查使用
     float sizeA1;
     float sizeA2;
     vector<pin> allPin;
     obs o;
+
+    void setToLayout(float setX, float setY, QString dire)
+    {
+        for(pin &p : this->allPin)
+            p.setToLayout(setX,setY,dire);
+    }
 };
 
 }
