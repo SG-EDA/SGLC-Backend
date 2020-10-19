@@ -45,7 +45,7 @@ struct component
 
 struct pin
 {
-    QString comName;
+    QString instName;
     QString pinName;
 };
 
