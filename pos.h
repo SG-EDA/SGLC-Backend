@@ -6,6 +6,7 @@ private:
     float w;
     float h;
     bool isOrigin; //中心原点
+    bool inLayout=false;
 
 public:
     float x;
@@ -62,9 +63,12 @@ public:
         else
             return pos(this->h-this->y,this->w-this->x,this->h,this->w);
     }
-    void setToCell(float setX, float setY)
+    void setToLayout(float setX, float setY)
     {
-
+        this->x+=setX;
+        this->y+=setY;
+        this->isOrigin=false;
+        this->inLayout=false;
     }
     bool getIsOrigin() { return this->isOrigin; }
 };
