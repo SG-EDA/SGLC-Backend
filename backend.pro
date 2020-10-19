@@ -11,6 +11,7 @@ HEADERS += \
     defParser.h \
     defStru.h \
     help.h \
+    layout.h \
     lefParser.h \
     lefStru.h \
     pos.h

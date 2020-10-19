@@ -79,8 +79,8 @@ private:
 
 public:
     vector<DEF::component> allComponent;
-    vector<DEF::pin> allPin;
-    vector<DEF::net> allNet;
+    vector<DEF::pin> allPin; //末端接口
+    vector<DEF::net> allNet; //导线连接
 
     defParser(QString code)
     {
