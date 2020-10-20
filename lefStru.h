@@ -74,4 +74,10 @@ struct cell
     }
 };
 
+struct via
+{
+    QString name;
+    float spacing;
+};
+
 }

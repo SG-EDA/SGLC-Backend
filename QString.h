@@ -32,6 +32,8 @@ public:
         return this->str.find(a.str)!=this->str.npos;
     }
 
+    float toFloat() { return atof(this->str.c_str()); }
+
     operator string() { return this->str; }
 
     QStringList split(QString qs, QString qseperator)

@@ -21,5 +21,6 @@ int main()
     defParser p1(def);
     lefParser p2(lef);
     auto c=p2.getCell("CELL2");
+    auto v=p2.getVia("VIA23");
     return 0;
 }

@@ -66,6 +66,29 @@ public:
         codeList=code.split("\n");
     }
 
+    LEF::via getVia(QString viaName)
+    {
+        LEF::via v;
+        bool findVia=false;
+        for(int i=0;i<codeList.length();i++)
+        {
+            QString stri=codeList[i];
+            if(findVia==false && stri=="LAYER "+viaName) //找到CELL位置，进状态
+            {
+                v.name=viaName;
+                findVia=true;
+            }
+            else if(findVia)
+            {
+                if(stri.indexOf("SPACING")!=-1)
+                    v.spacing=help::getLastElm(stri,"SPACING").toFloat();
+                else if(stri=="END "+viaName)
+                    break;
+            }
+        }
+        return v;
+    }
+
     LEF::cell getCell(QString cellName)
     {
         LEF::cell c;
@@ -75,7 +98,7 @@ public:
             QString stri=codeList[i];
             if(findCell==false && stri=="MACRO "+cellName) //找到CELL位置，进状态
             {
-                c.name=cellName;
+                c.cellName=cellName;
                 findCell=true;
             }
             else if(findCell)
