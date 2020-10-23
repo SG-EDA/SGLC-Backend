@@ -39,6 +39,21 @@ private:
         //查找两个pin中最近rect的距离
     }
 
+    vector<LEF::pin> toLEFPinVec(const vector<DEF::pin> &allPin)
+    {
+        vector<LEF::pin> result;
+        for(auto i : allPin)
+            result.push_back(this->findLEFPin(i.instName,i.pinName));
+        return result;
+    }
+
+    vector<LEF::pin> sortAllPin(const vector<DEF::pin> &allPin)
+    {
+        vector<LEF::pin> LEFallPin=this->toLEFPinVec(allPin);
+        //fix:对LEFallPin进行排序
+        return LEFallPin;
+    }
+
 public:
     defParser dp;
     lefParser lp;
@@ -60,9 +75,11 @@ public:
     {
         for(DEF::net &n : dp.allNet)
         {
-            for(DEF::pin &p : n.allPin)
+            auto LEFallPin=this->sortAllPin(n.allPin);
+            for(int i=1;i<LEFallPin.size();i++)
             {
-                //找出里面的两个（多个）pin，然后调用this.connect得到line
+                line l=this->connect(LEFallPin[i-1],LEFallPin[i]);
+                this->allLine.push_back(l);
             }
         }
     }
