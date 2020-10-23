@@ -14,12 +14,12 @@ public:
 class layout
 {
 private:
-    line connect(LEF::pin &p1, LEF::pin &p2) //fix:还需要支持多个
+    line connect(LEF::pin &p1, LEF::pin &p2)
     {
         //避开目前有线位置和obs连接两个pin
     }
 
-    LEF::pin& findPinPos(QString instName, QString pinName)
+    LEF::pin& findLEFPin(QString instName, QString pinName)
     {
         for(LEF::cell &c : this->allCell)
         {
@@ -32,6 +32,11 @@ private:
                 }
             }
         }
+    }
+
+    static float getPinDist(LEF::pin &p1, LEF::pin &p2)
+    {
+        //查找两个pin中最近rect的距离
     }
 
 public:
