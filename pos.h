@@ -64,6 +64,7 @@ public:
     float y;
     pos(float x,float y,float w,float h,bool isOrigin=false):
         x(x),y(y),w(w),h(h),isOrigin(isOrigin){}
+    pos(float x,float y) : x(x), y(y), isOrigin(false), inLayout(true) {}
 
     void setDire(QString dire)
     {
@@ -88,8 +89,9 @@ public:
         this->x+=setX;
         this->y+=setY;
         this->isOrigin=false;
-        this->inLayout=false;
+        this->inLayout=true;
     }
 
     bool getIsOrigin() { return this->isOrigin; }
+    bool getInLayout() { return this->inLayout; }
 };

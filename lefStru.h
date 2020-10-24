@@ -5,6 +5,7 @@
 #include "pos.h"
 #include "help.h"
 #include <QStringList>
+#include <optional>
 using namespace std;
 
 class rect
@@ -33,7 +34,36 @@ public:
             }
         }
     }
+
+    void setToLayout(float setX, float setY, QString dire)
+    {
+        this->p1.setDire(dire);
+        this->p1.setToLayout(setX,setY);
+        this->p2.setDire(dire);
+        this->p2.setToLayout(setX,setY);
+    }
+
+    bool isIntersect(const rect& r)
+    {
+        //检测两矩形是否相交
+    }
 };
+
+class line
+{
+public:
+    float x1;
+    float y1;
+    float x2;
+    float y2;
+    QString metal;
+
+    rect toRect()
+    {
+        return rect(pos(x1,y1),pos(x2,y2));
+    }
+};
+
 
 namespace LEF
 {
@@ -47,12 +77,7 @@ struct pin
     void setToLayout(float setX, float setY, QString dire)
     {
         for(rect &r : this->allRect)
-        {
-            r.p1.setDire(dire);
-            r.p1.setToLayout(setX,setY);
-            r.p2.setDire(dire);
-            r.p2.setToLayout(setX,setY);
-        }
+            r.setToLayout(setX,setY,dire);
     }
 };
 
@@ -71,6 +96,28 @@ struct cell
     {
         for(pin &p : this->allPin)
             p.setToLayout(setX,setY,dire);
+        for(auto &p : this->o)
+        {
+            vector<rect> &allRect=p.second;
+            for(rect &r : allRect)
+                r.setToLayout(setX,setY,dire);
+        }
+    }
+
+    optional<rect> checkOBS(line l)
+    {
+        if (this->o.find(l.metal) == this->o.end())
+            return optional<rect>(); //这一层不存在obs
+        else
+        {
+            vector<rect> &allRect=this->o[l.metal];
+            for(rect r : allRect)
+            {
+                if(r.isIntersect(l.toRect()))
+                    return r;
+            }
+            return optional<rect>(); //找不到相交的obs
+        }
     }
 };
 
