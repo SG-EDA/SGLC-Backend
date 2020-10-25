@@ -54,7 +54,53 @@ private:
 
     static float getPinDist(LEF::pin &p1, LEF::pin &p2)
     {
-        //查找两个pin中最近rect的距离
+        //rect中点
+        float mid_p1_x ;
+        float mid_p1_y ;
+        float mid_p2_x ;
+        float mid_p2_y ;
+        //rect差值
+        float div_x ;
+        float div_y ;
+        float div ;
+        //上次计算结果
+        float last;
+        int p1_rect_cnt_last;
+        int p2_rect_cnt_last;
+        //循环比较
+        for(int p1_rect_cnt=0;p1_rect_cnt<p1.allRect.size();p1_rect_cnt++)
+        {
+            for(int p2_rect_cnt=1;p2_rect_cnt<p2.allRect.size();p2_rect_cnt++)
+            {
+                if(p1_rect_cnt==p2_rect_cnt)
+                    continue;
+
+                tie(mid_p1_x,mid_p1_y)=p1.allRect[p1_rect_cnt].getMidPos();
+                tie(mid_p2_x,mid_p2_y)=p2.allRect[p1_rect_cnt].getMidPos();
+
+                div_x = mid_p1_x - mid_p2_x;
+                div_y = mid_p1_y - mid_p2_y;
+
+                div = abs(div_x) + abs(div_y);
+
+                if((p1_rect_cnt == 0) && (p1_rect_cnt == 0))
+                {
+                    last = div ;
+                    p1_rect_cnt_last = p1_rect_cnt;
+                    p2_rect_cnt_last = p2_rect_cnt;
+                }
+                else if(div<last)
+                {
+                    last = div;
+                    p1_rect_cnt_last = p1_rect_cnt;
+                    p2_rect_cnt_last = p2_rect_cnt;
+                }
+            }
+        }
+        //最小的rect编号和最小x+y距离
+        rect p1_rect = p1.allRect[p1_rect_cnt_last];
+        rect p2_rect = p2.allRect[p2_rect_cnt_last];
+        return last;
     }
 
     vector<LEF::pin> toLEFPinVec(const vector<DEF::pin> &allPin)

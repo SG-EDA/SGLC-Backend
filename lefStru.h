@@ -43,9 +43,34 @@ public:
         this->p2.setToLayout(setX,setY);
     }
 
+    tuple<float,float> getMidPos() const
+    {
+        float r2_x_mid=(this->p1.x+this->p2.x)/2;
+        float r2_y_mid=(this->p2.y+this->p2.y)/2;
+        return make_tuple(r2_x_mid,r2_y_mid);
+    }
+
     bool isIntersect(const rect& r)
     {
-        //检测两矩形是否相交
+        float r1_x_mid,r1_y_mid,r2_x_mid,r2_y_mid;
+        tie(r1_x_mid,r1_y_mid)=r.getMidPos();
+        tie(r2_x_mid,r2_y_mid)=this->getMidPos();
+
+        float r1Width=r.p2.x-r.p1.x;
+        float r1Height=r.p2.y-r.p1.y;
+        float r2Width=this->p2.x-this->p1.x;
+        float r2Height=this->p2.y-this->p1.y;
+
+        if (
+            abs(r1_x_mid - r2_x_mid) < r1Width / 2.0 + r2Width / 2.0 //横向判断
+            &&
+            abs(r1_y_mid - r2_y_mid) < r1Height / 2.0 + r2Height / 2.0 //纵向判断
+            )
+        {
+            return true; //碰撞
+        }
+        else
+            return false;
     }
 };
 
