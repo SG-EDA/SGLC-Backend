@@ -96,11 +96,7 @@ struct metal
     bool vertical; //false为horizontal
 
     QString getName() { return "METAL"+QString::number(m); }
-    bool operator==(const metal &m)
-    {
-        return this->m==m.m && this->minWidth==m.minWidth && this->spacing==m.spacing &&
-                this->area==m.area && this->vertical==m.vertical;
-    }
+    bool operator==(const metal &m) { return this->m==m.m; }
 };
 
 struct pin
