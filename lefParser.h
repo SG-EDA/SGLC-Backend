@@ -66,16 +66,18 @@ public:
         codeList=code.split("\n");
     }
 
-    LEF::via getVia(QString viaName)
+    LEF::via getVia(int m1,int m2)
     {
+        QString viaName="VIA"+QString::number(m1)+QString::number(m2);
         LEF::via v;
         bool findVia=false;
         for(int i=0;i<codeList.length();i++)
         {
             QString stri=codeList[i];
-            if(findVia==false && stri=="LAYER "+viaName) //找到CELL位置，进状态
+            if(findVia==false && stri=="LAYER "+viaName) //找到via位置，进状态
             {
-                v.name=viaName;
+                v.m1=m1;
+                v.m2=m2;
                 findVia=true;
             }
             else if(findVia)
@@ -87,6 +89,41 @@ public:
             }
         }
         return v;
+    }
+
+    LEF::metal getMetal(int _m)
+    {
+        QString metalName="METAL"+QString::number(_m);
+        LEF::metal m;
+        bool findMet=false;
+        for(int i=0;i<codeList.length();i++)
+        {
+            QString stri=codeList[i];
+            if(findMet==false && stri=="LAYER "+metalName) //找到metal位置，进状态
+            {
+                m.m=_m;
+                findMet=true;
+            }
+            else if(findMet)
+            {
+                if(stri.indexOf("SPACING")!=-1)
+                    m.spacing=help::getLastElm(stri,"SPACING").toFloat();
+                else if(stri.indexOf("MINWIDTH")!=-1)
+                    m.minWidth=help::getLastElm(stri,"MINWIDTH").toFloat();
+                else if(stri.indexOf("AREA")!=-1)
+                    m.area=help::getLastElm(stri,"AREA").toFloat();
+                else if(stri.indexOf("DIRECTION")!=-1)
+                {
+                    if(stri.indexOf("VERTICAL")!=-1)
+                        m.vertical=true;
+                    else
+                        m.vertical=false;
+                }
+                else if(stri=="END "+metalName)
+                    break;
+            }
+        }
+        return m;
     }
 
     LEF::cell getCell(QString cellName)

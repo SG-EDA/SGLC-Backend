@@ -14,6 +14,7 @@ public:
     pos p1;
     pos p2;
     rect(pos p1, pos p2):p1(p1),p2(p2){}
+    rect() : p1(pos(0,0)), p2(pos(0,0)) {} //给tie使用的洞
 
     static rect getRect(QString stri, float w, float h)
     {
@@ -148,8 +149,18 @@ struct cell
 
 struct via
 {
-    QString name;
+    int m1;
+    int m2;
     float spacing;
+};
+
+struct metal
+{
+    int m;
+    float minWidth;
+    float spacing;
+    float area=-1; //-1为无约束
+    bool vertical; //false为horizontal
 };
 
 }

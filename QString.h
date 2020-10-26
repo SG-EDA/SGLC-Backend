@@ -14,6 +14,7 @@ public:
 
     QString(const string a) : str(a) {}
     QString(const QString & a) : str(a.str) {}
+    static QString number(int a) { return QString(to_string(a)); }
 
     QString& operator= (const string& a)
     {
@@ -35,6 +36,7 @@ public:
     float toFloat() { return atof(this->str.c_str()); }
 
     operator string() { return this->str; }
+    QString operator +(const QString &a) { return this->str+a.str; }
 
     QStringList split(QString qs, QString qseperator)
     {
