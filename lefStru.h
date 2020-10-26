@@ -51,16 +51,16 @@ public:
         return make_tuple(r2_x_mid,r2_y_mid);
     }
 
-    bool isIntersect(const rect& r)
+    bool isIntersect(const rect& r,float spacing)
     {
         float r1_x_mid,r1_y_mid,r2_x_mid,r2_y_mid;
         tie(r1_x_mid,r1_y_mid)=r.getMidPos();
         tie(r2_x_mid,r2_y_mid)=this->getMidPos();
 
-        float r1Width=r.p2.x-r.p1.x;
-        float r1Height=r.p2.y-r.p1.y;
-        float r2Width=this->p2.x-this->p1.x;
-        float r2Height=this->p2.y-this->p1.y;
+        float r1Width=r.p2.x-r.p1.x+spacing/2;
+        float r1Height=r.p2.y-r.p1.y+spacing/2;
+        float r2Width=this->p2.x-this->p1.x+spacing/2;
+        float r2Height=this->p2.y-this->p1.y+spacing/2;
 
         if (
             abs(r1_x_mid - r2_x_mid) < r1Width / 2.0 + r2Width / 2.0 //横向判断
@@ -75,24 +75,33 @@ public:
     }
 };
 
-class line
-{
-public:
-    float x1;
-    float y1;
-    float x2;
-    float y2;
-    QString metal;
-
-    rect toRect()
-    {
-        return rect(pos(x1,y1),pos(x2,y2));
-    }
-};
-
+class line;
 
 namespace LEF
 {
+
+struct via
+{
+    int m1;
+    int m2;
+    float spacing;
+};
+
+struct metal
+{
+    int m;
+    float minWidth;
+    float spacing;
+    float area=-1; //-1为无约束
+    bool vertical; //false为horizontal
+
+    QString getName() { return "METAL"+QString::number(m); }
+    bool operator==(const metal &m)
+    {
+        return this->m==m.m && this->minWidth==m.minWidth && this->spacing==m.spacing &&
+                this->area==m.area && this->vertical==m.vertical;
+    }
+};
 
 struct pin
 {
@@ -129,38 +138,39 @@ struct cell
                 r.setToLayout(setX,setY,dire);
         }
     }
+};
 
-    optional<rect> checkOBS(line l)
+}
+
+
+class line
+{
+public:
+    float x1;
+    float y1;
+    float x2;
+    float y2;
+    LEF::metal metal;
+
+    rect toRect()
     {
-        if (this->o.find(l.metal) == this->o.end())
+        return rect(pos(x1,y1),pos(x2,y2));
+    }
+
+    optional<rect> checkOBS(LEF::cell &c)
+    {
+        QString metalName=this->metal.getName();
+        if (c.o.find(metalName) == c.o.end())
             return optional<rect>(); //这一层不存在obs
         else
         {
-            vector<rect> &allRect=this->o[l.metal];
+            vector<rect> &allRect=c.o[metalName];
             for(rect r : allRect)
             {
-                if(r.isIntersect(l.toRect()))
+                if(r.isIntersect(this->toRect(),this->metal.spacing))
                     return r;
             }
             return optional<rect>(); //找不到相交的obs
         }
     }
 };
-
-struct via
-{
-    int m1;
-    int m2;
-    float spacing;
-};
-
-struct metal
-{
-    int m;
-    float minWidth;
-    float spacing;
-    float area=-1; //-1为无约束
-    bool vertical; //false为horizontal
-};
-
-}

@@ -9,7 +9,7 @@ private:
     {
         for(LEF::cell &c : this->allCell) //fix:可以尝试只检测近邻的以剪枝
         {
-            auto result=c.checkOBS(l);
+            auto result=l.checkOBS(c);
             if(result.has_value())
                 return result;
         }
@@ -20,7 +20,7 @@ private:
             if(l.metal==li.metal)
             {
                 rect lir=li.toRect();
-                if(lr.isIntersect(lir))
+                if(lr.isIntersect(lir,l.metal.spacing))
                     return lir;
             }
         }
@@ -28,19 +28,25 @@ private:
         return optional<rect>();
     }
 
-    line connect(LEF::pin &p1, LEF::pin &p2)
+    void connect(LEF::pin &p1, LEF::pin &p2)
     {
         //避开目前有线位置和obs连接两个pin
         //1.查找二者最近的两个rect
         rect r1,r2;
         tie(r1,r2,ignore)=this->getPinDist(p1,p2);
-        //2.尝试横/竖走线
-        //2.1.生成两个line矩形 l1 l2
-        auto fixConnect=[](line l)
+        //2.尝试横/竖走线（注意横竖在不同层，连接横竖时需要打孔走孔）
+        //2.1.生成两个line矩形 l1 l2、及连通它们的孔
+        auto fixConnect=[this](line l)
         {
             //2.2.检测每条横/竖线中无法走线（与障碍矩形相交），此时要获取到整个障碍矩形 - 使用checkLine
-            //3.在此处停止，进行局部修正（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点）
-            //4.使用修正后的坐标继续横/竖走线（循环）、如果无法绕过，就地打孔？
+            auto obsRect=this->checkLine(l);
+            if(obsRect.has_value())
+            {
+                //3.在此处停止，进行局部修正（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点）
+                //4.使用修正后的坐标继续横/竖走线（循环）、如果无法绕过，继续打孔？
+            }
+            else
+                this->allLine.push_back(l);
         };
 
     }
@@ -150,8 +156,7 @@ public:
             auto LEFallPin=this->sortAllPin(n.allPin);
             for(int i=1;i<LEFallPin.size();i++)
             {
-                line l=this->connect(LEFallPin[i-1],LEFallPin[i]);
-                this->allLine.push_back(l);
+                this->connect(LEFallPin[i-1],LEFallPin[i]);
             }
         }
     }
