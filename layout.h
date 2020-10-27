@@ -128,7 +128,28 @@ private:
     vector<LEF::pin> sortAllPin(const vector<DEF::pin> &allPin)
     {
         vector<LEF::pin> LEFallPin=this->toLEFPinVec(allPin);
-        //fix:对LEFallPin进行排序
+        float distance = 0;
+        float last_distance = 0;
+        int min_num = 0;
+        for (int i = 0; i < LEFallPin.size() - 2; i++)
+        {
+            for (int j = i + 1; j < LEFallPin.size() - 1; j++)
+            {
+                tie(ignore,ignore,distance) = this->getPinDist(LEFallPin[i], LEFallPin[j]);
+                //在i后面找和i距离最小的
+                if ((i == 0) && (j == 1)) {
+                    last_distance = distance;
+                    min_num = j;
+                }
+                else if (distance < last_distance) {
+                    last_distance = distance;
+                    min_num = j;
+                }
+            }
+            LEF::pin temp = LEFallPin[min_num];
+            LEFallPin[min_num] = LEFallPin[i+1];
+            LEFallPin[i+1] = temp;
+        }
         return LEFallPin;
     }
 
