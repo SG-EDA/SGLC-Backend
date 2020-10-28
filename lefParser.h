@@ -108,8 +108,8 @@ public:
             {
                 if(stri.indexOf("SPACING")!=-1)
                     m.spacing=help::getLastElm(stri,"SPACING").toFloat();
-                else if(stri.indexOf("MINWIDTH")!=-1)
-                    m.minWidth=help::getLastElm(stri,"MINWIDTH").toFloat();
+                else if(stri.indexOf("WIDTH")!=-1)
+                    m.width=help::getLastElm(stri,"WIDTH").toFloat();
                 else if(stri.indexOf("AREA")!=-1)
                     m.area=help::getLastElm(stri,"AREA").toFloat();
                 else if(stri.indexOf("DIRECTION")!=-1)

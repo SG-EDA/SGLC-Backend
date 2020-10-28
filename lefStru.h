@@ -90,8 +90,9 @@ struct via
 struct metal
 {
     int m;
-    float minWidth;
+    float width;
     float spacing;
+    float pitch;
     float area=-1; //-1为无约束
     bool vertical; //false为horizontal
 
