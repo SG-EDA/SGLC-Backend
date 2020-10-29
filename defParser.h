@@ -20,7 +20,7 @@ private:
         return -1;
     }
 
-    int parsePins(int i)
+    int parsePins(int i) //fix:
     {
         for(int j=i;j<this->codeList.length();j++)
         {
@@ -79,7 +79,7 @@ private:
 
 public:
     vector<DEF::component> allComponent;
-    vector<DEF::pin> allPin; //末端接口
+    vector<DEF::pin> allPin; //接口
     vector<DEF::net> allNet; //导线连接
 
     defParser(QString code)
@@ -90,8 +90,8 @@ public:
             QString stri=this->codeList[i];
             if(stri.indexOf("COMPONENTS")!=-1)
                 i=this->parseComponents(i+1);
-            else if(stri.indexOf("PINS")!=-1)
-                i=this->parsePins(i+1);
+            /*else if(stri.indexOf("PINS")!=-1) //暂不考虑
+                i=this->parsePins(i+1);*/
             else if(stri.indexOf("NETS")!=-1)
                 i=this->parseNets(i+1);
             else if(stri=="END DESIGN")

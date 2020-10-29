@@ -157,6 +157,7 @@ public:
     optional<rect> checkOBS(LEF::cell &c)
     {
         QString metalName=this->metal.getName();
+        //fix:还要检查pin里的rect？
         if (c.o.find(metalName) == c.o.end())
             return optional<rect>(); //这一层不存在obs
         else

@@ -1,54 +1,182 @@
 SGLC-Backend
 ===========
-æœ¬é¡¹ç›®é’ˆå¯¹é›†æˆç”µè·¯çº¿ç½‘å¸ƒçº¿é—®é¢˜ï¼Œå®Œæˆäº†ä»¥ä¸‹å·¥ä½œï¼š
-* ä¸€å¥—ç”¨äºŽç”µè·¯æž„æˆå…ƒç´ å’Œçº¦æŸæ¡ä»¶è¡¨ç¤ºçš„æ•°æ®ç»“æž„ã€‚å¯ä»¥è¦†ç›–æœ¬æ¬¡æ¯”èµ›æµ‹è¯•æ ·ä¾‹ä¸­æ‰€ä½¿ç”¨çš„METALã€VIAã€CELLç­‰ç”µè·¯æž„æˆå…ƒç´ 
-* ä¸€å¥—é’ˆå¯¹LEFå’ŒDEFæ–‡ä»¶çš„parseåº“ã€‚å¯ä»¥è¦†ç›–æœ¬æ¬¡æ¯”èµ›æµ‹è¯•æ ·ä¾‹ä¸­ä½¿ç”¨çš„LEFã€DEFè¯­æ³•å­é›†ï¼Œå°†ä»£ç æ–‡æœ¬æ‰€æè¿°çš„ç”µè·¯ç»“æž„ã€å…ƒä»¶å’Œçº¦æŸæ¡ä»¶ä¿¡æ¯è½¬æ¢åˆ°ä¸Šä¸€æ¡æ‰€è¯´çš„æ•°æ®ç»“æž„è¡¨ç¤º
-* ç”¨äºŽç”µè·¯å¸ƒçº¿çš„åŠŸèƒ½æ¨¡å—ã€‚é’ˆå¯¹DEFæè¿°çš„å…ƒä»¶æ”¾ç½®ä¸Žè¿žæŽ¥å…³ç³»ï¼Œæ ¹æ®LEFä¸­æè¿°çš„å…ƒä»¶å±žæ€§ä¸Žçº¦æŸæ¡ä»¶è¿›è¡Œå¸ƒçº¿ï¼ˆæ”¾ç½®å¯¼çº¿å’Œviaï¼‰
+±¾ÏîÄ¿Õë¶Ô¼¯³ÉµçÂ·ÏßÍø²¼ÏßÎÊÌâ£¬Íê³ÉÁËÒÔÏÂ¹¤×÷£º
+* Íê³ÉÁËÒ»Ì×ÓÃÓÚµçÂ·¹¹³ÉÔªËØºÍÔ¼ÊøÌõ¼þ±íÊ¾µÄÊý¾Ý½á¹¹¡£¿ÉÒÔ¸²¸Ç±¾´Î±ÈÈü²âÊÔÑùÀýÖÐËùÊ¹ÓÃµÄMETAL¡¢VIA¡¢CELLµÈµçÂ·¹¹³ÉÔªËØ
+* Íê³ÉÁËÒ»Ì×Õë¶ÔLEFºÍDEFÎÄ¼þµÄparse¿â¡£¿ÉÒÔ¸²¸Ç±¾´Î±ÈÈü²âÊÔÑùÀýÖÐÊ¹ÓÃµÄLEF¡¢DEFÓï·¨×Ó¼¯£¬½«´úÂëÎÄ±¾ËùÃèÊöµÄµçÂ·½á¹¹¡¢Ôª¼þºÍÔ¼ÊøÌõ¼þÐÅÏ¢×ª»»µ½ÉÏÒ»ÌõËùËµµÄÊý¾Ý½á¹¹±íÊ¾
+* Íê³ÉÁËÓÃÓÚµçÂ·²¼ÏßµÄ¹¦ÄÜÄ£¿é¡£Õë¶ÔDEFÃèÊöµÄÔª¼þ·ÅÖÃÓëÁ¬½Ó¹ØÏµ£¬¸ù¾ÝLEFÖÐÃèÊöµÄÔª¼þÊôÐÔÓëÔ¼ÊøÌõ¼þ½øÐÐ²¼Ïß£¨·ÅÖÃµ¼ÏßºÍvia£©
 
-ç”µè·¯è¡¨ç¤ºä¸ŽParse
+µçÂ·±íÊ¾ÓëParse
 --------------
-ç”±äºŽæˆ‘ä»¬å¸Œæœ›å‡å°‘ç®—æ³•æ‰§è¡Œè¿‡ç¨‹ä¸­å†—ä½™çš„ä¿¡æ¯ï¼Œå› æ­¤éœ€è¦è‡ªè¡Œè®¾è®¡æ•°æ®ç»“æž„è¿›è¡Œç”µè·¯è¡¨ç¤ºï¼ˆè¿™æ ·å¯ä»¥åœ¨å¸ƒçº¿æ—¶æ›´å¿«åœ°æŸ¥æ‰¾ç›¸å…³ä¿¡æ¯ï¼‰ã€‚ä¸è¿‡è¿™æ ·å°±æ— æ³•ä½¿ç”¨cadenceçš„å¼€æºparserã€‚å› æ­¤æˆ‘ä»¬ç»™å‡ºäº†ä¸€ä¸ªç›¸è¾ƒcadence parseræ›´ç®€æ´çš„parserå®žçŽ°ï¼Œå®ƒä½¿ç”¨ç®€å•çš„çŠ¶æ€æœºå †å æž„æˆï¼Œé«˜æ•ˆåœ°å¯¹DEFå’ŒLEFä»£ç è¿›è¡Œåˆ†æžï¼Œå¹¶å°†åˆ†æžç»“æžœè½¬æ¢æˆæˆ‘ä»¬éœ€è¦çš„æ•°æ®ç»“æž„ã€‚
+ÓÉÓÚÎÒÃÇÏ£Íû¼õÉÙËã·¨Ö´ÐÐ¹ý³ÌÖÐÈßÓàµÄÐÅÏ¢£¬Òò´ËÐèÒª×ÔÐÐÉè¼ÆÊý¾Ý½á¹¹½øÐÐµçÂ·±íÊ¾£¨ÕâÑù¿ÉÒÔÔÚ²¼ÏßÊ±¸ü¿ìµØ²éÕÒÏà¹ØÐÅÏ¢£©¡£²»¹ýÕâÑù¾ÍÎÞ·¨Ê¹ÓÃcadenceµÄ¿ªÔ´parser¡£Òò´ËÎÒÃÇ¸ø³öÁËÒ»¸öÏà½Ïcadence parser¸ü¼ò½àµÄparserÊµÏÖ£¬ËüÊ¹ÓÃ¼òµ¥µÄ×´Ì¬»ú¶Ñµþ¹¹³É£¬¸ßÐ§µØ¶ÔDEFºÍLEF´úÂë½øÐÐ·ÖÎö£¬²¢½«·ÖÎö½á¹û×ª»»³ÉÎÒÃÇÐèÒªµÄÊý¾Ý½á¹¹¡£
 
-ä¸‹é¢å°†åˆ†åˆ«ä»‹ç»æˆ‘ä»¬çš„**ç”µè·¯è¡¨ç¤ºç»“æž„**ä¸Ž**Parserè®¾è®¡**
+ÏÂÃæ½«·Ö±ð½éÉÜÎÒÃÇµÄ**µçÂ·±íÊ¾½á¹¹**Óë**ParserÉè¼Æ**
 
-### ç”µè·¯è¡¨ç¤ºç»“æž„
-æˆ‘ä»¬çš„æ•°æ®ç»“æž„åˆ†ä¸ºå¯¹DEFè¡¨ç¤ºç»“æž„å’Œå¯¹LEFè¡¨ç¤ºç»“æž„ä¸¤éƒ¨åˆ†ã€‚DEFè¡¨ç¤ºç»“æž„é€šè¿‡DEF parserå¯¹DEFä»£ç è¿›è¡Œåˆ†æžè€Œå®žä¾‹åŒ–ï¼ŒLEFè¡¨ç¤ºç»“æž„åˆ™æ˜¯é€šè¿‡åˆ†æžLEFä»£ç è€Œå®žä¾‹åŒ–
+µçÂ·±íÊ¾½á¹¹
+---------
+ÎÒÃÇµÄÊý¾Ý½á¹¹·ÖÎª¶ÔDEF±íÊ¾½á¹¹ºÍ¶ÔLEF±íÊ¾½á¹¹Á½²¿·Ö¡£DEF±íÊ¾½á¹¹Í¨¹ýDEF parser¶ÔDEF´úÂë½øÐÐ·ÖÎö¶øÊµÀý»¯£¬LEF±íÊ¾½á¹¹ÔòÊÇÍ¨¹ý·ÖÎöLEF´úÂë¶øÊµÀý»¯¡£DEF±íÊ¾ÁËÒ»¸öÊµ¼ÊµçÂ·µÄÔª¼þµÄ°Ú·ÅÓëÁ¬½Ó¹ØÏµ£¬LEFÔò±íÊ¾ÁËMETAL¡¢VIA¡¢CELLµÈµçÂ·Ôª¼þÓë²¼ÏßËùÐè²¿¼þµÄÊôÐÔ¡£
 
-#### DEFè¡¨ç¤ºç»“æž„
+### DEF±íÊ¾½á¹¹
 
-##### componentç±»
-æè¿°è¢«æ”¾ç½®äºŽç‰ˆå›¾ä¸­çš„å…ƒä»¶ï¼ˆå¯¹åº”DEFæ–‡ä»¶çš„`COMPONENTS`ä»£ç å—ï¼‰
-###### å±žæ€§
+#### componentÀà
+ÃèÊö±»·ÅÖÃÓÚ°æÍ¼ÖÐµÄÔª¼þ£¨¶ÔÓ¦DEFÎÄ¼þµÄ`COMPONENTS`´úÂë¿é£©
+##### ÊôÐÔ
 ``` cpp
 QString instName
 ```
-componentå¯¹è±¡çš„åå­—ã€‚è¿™æ˜¯componentå¯¹è±¡åœ¨DEFæ–‡ä»¶ä¸­çš„æ ‡è¯†ä»£å·
+component¶ÔÏóµÄÃû×Ö¡£ÕâÊÇcomponent¶ÔÏóÔÚDEFÎÄ¼þÖÐµÄ±êÊ¶Ãû×Ö
 ``` cpp
 QString cellName
 ```
-è¿™ä¸ªï¼ˆç§ï¼‰å…ƒä»¶çš„åå­—ã€‚åœ¨LEFè¡¨ç¤ºç»“æž„ä¸­æŸ¥è¯¢è¿™ä¸ªåå­—ï¼Œå¯ä»¥å¾—åˆ°å…³äºŽè¿™ä¸ªï¼ˆç§ï¼‰å…ƒä»¶çš„å…·ä½“æè¿°
+Õâ¸ö£¨ÖÖ£©Ôª¼þµÄÃû×Ö¡£ÔÚLEF±íÊ¾½á¹¹ÖÐ²éÑ¯Õâ¸öÃû×Ö£¬¿ÉÒÔµÃµ½¹ØÓÚÕâ¸ö£¨ÖÖ£©Ôª¼þµÄ¾ßÌåÃèÊö
+
+¾Ù¸öÀý×Ó£¬Ôª¼þ`CELL1`¿ÉÒÔÔÚ°æÍ¼ÖÐ±»·ÅÖÃ¶à¸ö£¬ËüÃÇ¿ÉÒÔ±»ÃüÃûÎª`inst1`ºÍ`inst2`¡£ÄÇÃ´`CELL1`¾ÍÊÇ`cellName`£¬`inst1`¾ÍÊÇ`instName`
+
 ```
 float x
-    float y
+float y
 ```
-componentå¯¹è±¡åœ¨ç‰ˆå›¾ä¸­è¢«æ”¾ç½®çš„ä½ç½®
+component¶ÔÏóÔÚ°æÍ¼ÖÐ±»·ÅÖÃµÄÎ»ÖÃ
 ```
 QString dire
 ```
-componentå¯¹è±¡åœ¨ç‰ˆå›¾ä¸­è¢«æ”¾ç½®çš„æ–¹å‘
+component¶ÔÏóÔÚ°æÍ¼ÖÐ±»·ÅÖÃµÄ·½Ïò
 
-##### pinç±»
-æè¿°æŸä¸ªcomponentå¯¹è±¡ä¸Šçš„ä¸€ä¸ªæŽ¥å£ï¼Œä¸€èˆ¬ç”¨äºŽè¡¨ç¤ºå¯¼çº¿çš„ç»ˆç«¯
-###### å±žæ€§
+#### pinÀà
+ÃèÊöÄ³¸öcomponent¶ÔÏóÉÏµÄÒ»¸ö½Ó¿Ú£¬Ò»°ãÓÃÓÚ±íÊ¾µ¼ÏßµÄÖÕ¶Ë¡£Õâ¸öÀà½ö¼ÇÂ¼component¶ÔÏóÃû×ÖºÍ½Ó¿ÚÃû×Ö£¬¹ØÓÚÕâ¸ö½Ó¿ÚµÄ¾ßÌåÐÅÏ¢ÐèÒªµ½LEF±íÊ¾ÖÐ²éÑ¯
+##### ÊôÐÔ
 ``` cpp
 QString instName
 ```
-componentå¯¹è±¡çš„åå­—
+component¶ÔÏóµÄÃû×Ö
 ``` cpp
 QString pinName
 ```
-æŽ¥å£çš„åå­—ã€‚
+½Ó¿ÚµÄÃû×Ö
 
-é€šè¿‡componentå¯¹è±¡åæŸ¥è¯¢åˆ°componentå¯¹è±¡ï¼Œå†é€šè¿‡componentå¯¹è±¡çš„`cellName`å±žæ€§æŸ¥è¯¢LEFè¡¨ç¤ºç»“æž„ä¸­çš„cellå¯¹è±¡ï¼Œå³å¯åœ¨cellå¯¹è±¡ä¸­é€šè¿‡`pinName`æŸ¥è¯¢åˆ°å¯¹åº”cellä¸­è¿™ä¸ªæŽ¥å£çš„ç›¸å…³ä¿¡æ¯
+Í¨¹ýcomponent¶ÔÏóÃû²éÑ¯µ½component¶ÔÏó£¬ÔÙÍ¨¹ýcomponent¶ÔÏóµÄ`cellName`ÊôÐÔ²éÑ¯LEF±íÊ¾½á¹¹ÖÐµÄcell¶ÔÏó£¬¼´¿ÉÔÚcell¶ÔÏóÖÐÍ¨¹ý`pinName`²éÑ¯µ½¶ÔÓ¦cellÖÐÕâ¸ö½Ó¿ÚµÄÏà¹ØÐÅÏ¢
 
-##### netç±»
+#### netÀà
+ÃèÊöÒ»×é½Ó¿Ú¼äµÄÁ¬½Ó£¨¶ÔÓ¦DEFÎÄ¼þµÄ`NETS`´úÂë¿é£©
+##### ÊôÐÔ
+``` cpp
+QString name
+```
+Õâ×éÁ¬½ÓµÄÃû×Ö
+``` cpp
+vector<pin> allPin
+```
+Á¬½ÓµÄËùÓÐ½Ó¿Ú£¨½«ÕâÐ©½Ó¿ÚÁ¬½ÓÔÚÒ»Æð£©
+
+### LEF±íÊ¾½á¹¹
+
+#### metalÀà
+ÃèÊö°æÍ¼Ä³Ò»½ðÊô²ãµÄÊôÐÔ
+##### ÊôÐÔ
+``` cpp
+int m
+```
+½ðÊô²ã¶ÔÏóµÄID
+``` cpp
+float width
+```
+±¾½ðÊô²ãÖÐµ¼ÏßµÄ¿í¶È
+``` cpp
+float spacing
+```
+±¾½ðÊô²ãÖÐµ¼ÏßµÄ×îÐ¡¼ä¾à£¨ÖÐÐÄÏß¾àÀë£©
+``` cpp
+float area=-1
+```
+µ¥Ìõµ¼ÏßµÄ×îÐ¡Ãæ»ýÔ¼Êø£¨`-1`±íÊ¾ÎÞÔ¼Êø£©
+``` cpp
+bool vertical
+```
+±¾²ãµ¼ÏßÊÇË®Æ½×ßÏß»¹ÊÇÊúÖ±×ßÏß£¬`true`ÎªË®Æ½×ßÏß
+##### ·½·¨
+``` cpp
+QString getName()
+```
+Èç`m=1`£¬ÄÇÃ´Õâ¸öº¯Êý½«·µ»Ø`METAL1`¡£`METAL+½ðÊô²ãID`ÊÇLEFÎÄ¼þÖÐ¶Ô½ðÊô²ãµÄ±êÊ¶Ãû×Ö¡£ÓÐÊ±ÐèÒªÊ¹ÓÃÕâ¸öÃû×Ö½øÐÐÒ»Ð©²éÑ¯
+
+#### viaÀà
+ÃèÊö´©Í¸Á¬½ÓÁ½²ã½ðÊôµÄ¿×
+##### ÊôÐÔ
+``` cpp
+int m1
+```
+ÆðÊ¼½ðÊô²ãID
+``` cpp
+int m2
+```
+Ä¿±ê½ðÊô²ãID£¨Ò»°ãÊÇÏàÁÚµÄ£©
+``` cpp
+float spacing
+```
+¿×ËùÕ¼µÄÃæ»ý
+
+#### cellÀà
+ÃèÊöÒ»¸öÔª¼þ
+##### ÊôÐÔ
+``` cpp
+QString cellName
+```
+£¨ÕâÖÖ£©Ôª¼þµÄÃû×Ö
+``` cpp
+QString instName
+```
+Ôª¼þ¶ÔÏóÔÚDEFÖÐµÄ±êÊ¶Ãû×Ö¡£Ã¿¸ö`LEF::cell`¶ÔÏó¶¼¶ÔÓ¦ÁËÒ»¸ö`DEF::component`¶ÔÏó£¬¿ÉÒÔÓÃÕâ¸öÃû×ÖÊµÏÖ¶þÕß¼äµÄ²éÑ¯¡£¿ÉÒÔ²ÎÕÕÉÏÒ»½ÚÖÐµÄ**componentÀà**Ð¡½Ú
+``` cpp
+float sizeA1
+float sizeA2
+```
+Ôª¼þ¶ÔÏóµÄ³¤Óë¿í
+``` cpp
+vector<pin> allPin
+```
+Ôª¼þ¶ÔÏóÖÐµÄËùÓÐ½Ó¿Ú£¨Õâ¸ö`pin`ÊÇÏÂÐ¡½ÚËùËµµÄ`LEF::pin`£¬²»ÊÇÇ°ÃæµÄ`DEF::pin`£©
+``` cpp
+obs o
+```
+Ôª¼þÖÐËùÓÐ²»¿É×ßÏßµÄÕÏ°­ÇøÓò£¨²»Í¬²ãµÄÕÏ°­ÇøÓòÔÚobs¶ÔÏóÖÐ·Ö±ð´æ´¢£©
+##### ·½·¨
+``` cpp
+void setToLayout(float setX, float setY, QString dire)
+```
+ÒÑÖªÔª¼þ¶ÔÏó±»·ÅÖÃµ½°æÍ¼µÄ×ø±êºÍ·½ÏòÊ±£¬½«¸Ã¶ÔÏóµÄËùÓÐ½Ó¿ÚºÍÕÏ°­ÇøÓòrect°´`dire`ËùÃèÊöµÄ·½Ïò½øÐÐÐý×ª£¬²¢×ª»»µ½°æÍ¼×ø±êÏµ
+
+#### pinÀà
+ÃèÊöÒ»¸ö½Ó¿Ú£¨½Ó¿Ú¶ÔÏó»á×éºÏµ½cell¶ÔÏóµ±ÖÐ£©¡£ÓëDEF±íÊ¾ÖÐµÄpinÀà²»Í¬µÄÊÇ£¬Õâ¸öÀàÖÐ´æ´¢½Ó¿ÚµÄ¾ßÌåÊôÐÔ
+##### ÊôÐÔ
+``` cpp
+QString name
+```
+½Ó¿ÚµÄÃû×Ö
+``` cpp
+QString layer
+```
+½Ó¿ÚËùÔÚ²ãµÄÃû×Ö£¨Îª`metal::getName()`µÄ·µ»ØÖµ¸ñÊ½£©
+``` cpp
+vector<rect> allRect
+```
+¹¹³É½Ó¿ÚµÄËùÓÐrect¡£Èç¹ûµ¼ÏßÏëÒªÓëÕâ¸ö½Ó¿ÚÁ¬½Ó£¬ÓëÆäÖÐÈÎÒâÒ»¸örectÁ¬½Ó¼´¿É
+##### ·½·¨
+``` cpp
+void setToLayout(float setX, float setY, QString dire)
+```
+ÒÑÖª**½Ó¿Ú¶ÔÏóËùÔÚµÄcell**±»·ÅÖÃµ½°æÍ¼µÄ×ø±êºÍ·½ÏòÊ±£¬½«¸Ã½Ó¿ÚÖÐËùÓÐrectµÄ×ø±ê°´`dire`ËùÃèÊöµÄ·½Ïò½øÐÐÐý×ª£¬²¢×ª»»µ½°æÍ¼×ø±êÏµ
+
+Parser
+----------
+ÎÒÃÇÊµÏÖÁËÁ½¸ö²»Í¬µÄparser·Ö±ð½âÎöDEF´úÂëºÍLEF´úÂë¡£ËüÃÇ¶¼Ê¹ÓÃ¼ò½àµÄ×´Ì¬»ú¶Ñµþ¹¹³É¡£
+
+### defParser
+#### ·½·¨
+``` cpp
+defParser(QString code)
+```
+¹¹Ôìparser¶ÔÏóÊ±´«ÈëDEF´úÂëÎÄ±¾ÄÚÈÝ¡£¹¹Ôìº¯ÊýÖÐ»áÖ±½Ó½øÐÐparse£¬½«·ÖÎö½á¹ûÖ±½Ó´æÈë±¾¶ÔÏóµÄ`allComponent`¡¢`allPin`£¨±¾ÌâÔÝ²»¿¼ÂÇ£©ºÍ`allNet`Êý¾Ý³ÉÔ±ÖÐ
+
+Parser·ÖÎªCOMPONENTSºÍNETSÁ½¸öÖ÷×´Ì¬£¬·Ö±ð¶ÔÓ¦`COMPONENTS`ºÍ`NETS`´úÂë¿é¡£`COMPONENTS`´úÂë¿éÖÐÓÐ¶à¸öcomponentµÄÃèÊö£¬`NETS`
+
+### lefParser
+#### ·½·¨
