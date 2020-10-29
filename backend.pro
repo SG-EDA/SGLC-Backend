@@ -15,4 +15,5 @@ HEADERS += \
     layout.h \
     lefParser.h \
     lefStru.h \
-    pos.h
+    pos.h \
+    rect.h
