@@ -16,6 +16,8 @@ public:
     rect(pos p1, pos p2):p1(p1),p2(p2){}
     rect() : p1(pos(0,0)), p2(pos(0,0)) {} //给tie使用的洞
 
+    bool isNull() const { return p1.x==0 && p1.y==0 && p2.x==0 && p2.y==0; }
+
     static rect getRect(QString stri, float w, float h)
     {
         QStringList strList=help::splitSpace(stri);
@@ -51,16 +53,18 @@ public:
         return make_tuple(r2_x_mid,r2_y_mid);
     }
 
-    bool isIntersect(const rect& r,float spacing)
+    bool isIntersect(const rect& r,float spacing,float width)
     {
         float r1_x_mid,r1_y_mid,r2_x_mid,r2_y_mid;
         tie(r1_x_mid,r1_y_mid)=r.getMidPos();
         tie(r2_x_mid,r2_y_mid)=this->getMidPos();
 
-        float r1Width=r.p2.x-r.p1.x+spacing/2;
-        float r1Height=r.p2.y-r.p1.y+spacing/2;
-        float r2Width=this->p2.x-this->p1.x+spacing/2;
-        float r2Height=this->p2.y-this->p1.y+spacing/2;
+        float expand=(spacing-width)/2;
+
+        float r1Width=r.p2.x-r.p1.x+expand;
+        float r1Height=r.p2.y-r.p1.y+expand;
+        float r2Width=this->p2.x-this->p1.x+expand;
+        float r2Height=this->p2.y-this->p1.y+expand;
 
         if (
             abs(r1_x_mid - r2_x_mid) < r1Width / 2.0 + r2Width / 2.0 //横向判断
@@ -72,6 +76,14 @@ public:
         }
         else
             return false;
+    }
+
+    bool isLowerLeft(const rect &r)
+    {
+        if(this->isNull())
+            return false;
+        else if(r.isNull())
+            return true;
     }
 };
 
@@ -92,7 +104,6 @@ struct metal
     int m;
     float width;
     float spacing;
-    float pitch;
     float area=-1; //-1为无约束
     bool vertical; //false为horizontal
 
@@ -157,18 +168,37 @@ public:
     optional<rect> checkOBS(LEF::cell &c)
     {
         QString metalName=this->metal.getName();
-        //fix:还要检查pin里的rect？
-        if (c.o.find(metalName) == c.o.end())
-            return optional<rect>(); //这一层不存在obs
-        else
+        rect result;
+
+        auto checkAndUpdate=[&result,this](vector<rect> allRect)
         {
-            vector<rect> &allRect=c.o[metalName];
             for(rect r : allRect)
             {
-                if(r.isIntersect(this->toRect(),this->metal.spacing))
-                    return r;
+                if(r.isIntersect(this->toRect(),this->metal.spacing,this->metal.width))
+                {
+                    if(r.isLowerLeft(result))
+                        result=r;
+                }
             }
-            return optional<rect>(); //找不到相交的obs
+        };
+
+        //检查pin里的rect
+        for(LEF::pin &p : c.allPin)
+        {
+            if(p.layer==metalName)
+                checkAndUpdate(p.allRect);
         }
+
+        //检查obs
+        if (!(c.o.find(metalName) == c.o.end())) //这一层存在obs
+        {
+            vector<rect> &allRect=c.o[metalName];
+            checkAndUpdate(allRect);
+        }
+
+        if(result.isNull())
+            return optional<rect>(); //找不到相交的
+        else
+            return result;
     }
 };

@@ -7,6 +7,7 @@ class layout
 private:
     optional<rect> checkLine(line l)
     {
+        rect result;
         for(LEF::cell &c : this->allCell) //fix:可以尝试只检测近邻的以剪枝
         {
             auto result=l.checkOBS(c);
@@ -20,12 +21,18 @@ private:
             if(l.metal==li.metal)
             {
                 rect lir=li.toRect();
-                if(lr.isIntersect(lir,l.metal.spacing))
-                    return lir;
+                if(lr.isIntersect(lir,l.metal.spacing,l.metal.width))
+                {
+                    if(lir.isLowerLeft(result)) //新找到的在左下
+                        result=lir;
+                }
             }
         }
 
-        return optional<rect>();
+        if(result.isNull())
+            return optional<rect>();
+        else
+            return result;
     }
 
     void connect(LEF::pin &p1, LEF::pin &p2)
