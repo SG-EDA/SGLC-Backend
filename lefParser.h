@@ -19,11 +19,15 @@ private:
         {
             QString stri=this->codeList[j];
             if(stri.indexOf("LAYER")!=-1)
-                p.layer=help::getLastElm(stri,"LAYER");
+            {
+                QString layer=help::getLastElm(stri,"LAYER");
+                int m=QString(layer[layer.size()-1]).toInt();
+                p.metal=this->getMetal(m);
+            }
             else if(stri.indexOf("RECT ")!=-1)
             {
                 rect r=rect::getRect(stri,c.sizeA1,c.sizeA2);
-                p.allRect.push_back(r);
+                p.allRect.push_back(pinRect(r));
 
             }
             else if(stri.indexOf("END "+p.name)!=-1)
@@ -60,10 +64,58 @@ private:
         return -1;
     }
 
+    LEF::metal _getMetal(int _m)
+    {
+        QString metalName="METAL"+QString::number(_m);
+        LEF::metal m;
+        bool findMet=false;
+        for(int i=0;i<codeList.length();i++)
+        {
+            QString stri=codeList[i];
+            if(findMet==false && stri=="LAYER "+metalName) //找到metal位置，进状态
+            {
+                m.ID=_m;
+                findMet=true;
+            }
+            else if(findMet)
+            {
+                if(stri.indexOf("SPACING")!=-1)
+                    m.spacing=help::getLastElm(stri,"SPACING").toFloat();
+                else if(stri.indexOf("MINWIDTH")!=-1)
+                    continue;
+                else if(stri.indexOf("WIDTH")!=-1)
+                    m.width=help::getLastElm(stri,"WIDTH").toFloat();
+                else if(stri.indexOf("AREA")!=-1)
+                    m.area=help::getLastElm(stri,"AREA").toFloat();
+                else if(stri.indexOf("DIRECTION")!=-1)
+                {
+                    if(stri.indexOf("VERTICAL")!=-1)
+                        m.vertical=true;
+                    else
+                        m.vertical=false;
+                }
+                else if(stri=="END "+metalName)
+                    break;
+            }
+        }
+        return m;
+    }
+
+    const int minMetalID;
+    vector<LEF::metal> allMetal;
+
 public:
-    lefParser(QString code)
+    lefParser(QString code, int minMetalID, int maxMetalID) : minMetalID(minMetalID)
     {
         codeList=code.split("\n");
+
+        for(int i=minMetalID;i<=maxMetalID;i++)
+            this->allMetal.push_back(this->_getMetal(i));
+    }
+
+    LEF::metal getMetal(int ID)
+    {
+        return this->allMetal[ID-minMetalID];
     }
 
     LEF::via getVia(int m1,int m2)
@@ -89,43 +141,6 @@ public:
             }
         }
         return v;
-    }
-
-    LEF::metal getMetal(int _m)
-    {
-        QString metalName="METAL"+QString::number(_m);
-        LEF::metal m;
-        bool findMet=false;
-        for(int i=0;i<codeList.length();i++)
-        {
-            QString stri=codeList[i];
-            if(findMet==false && stri=="LAYER "+metalName) //找到metal位置，进状态
-            {
-                m.m=_m;
-                findMet=true;
-            }
-            else if(findMet)
-            {
-                if(stri.indexOf("SPACING")!=-1)
-                    m.spacing=help::getLastElm(stri,"SPACING").toFloat();
-                else if(stri.indexOf("MINWIDTH")!=-1)
-                    continue;
-                else if(stri.indexOf("WIDTH")!=-1)
-                    m.width=help::getLastElm(stri,"WIDTH").toFloat();
-                else if(stri.indexOf("AREA")!=-1)
-                    m.area=help::getLastElm(stri,"AREA").toFloat();
-                else if(stri.indexOf("DIRECTION")!=-1)
-                {
-                    if(stri.indexOf("VERTICAL")!=-1)
-                        m.vertical=true;
-                    else
-                        m.vertical=false;
-                }
-                else if(stri=="END "+metalName)
-                    break;
-            }
-        }
-        return m;
     }
 
     LEF::cell getCell(QString cellName)

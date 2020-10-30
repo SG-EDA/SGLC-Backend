@@ -19,7 +19,7 @@ int main()
     QString def=ReadTXT("D:/sample.def");
     QString lef=ReadTXT("D:/sample.lef");
     defParser p1(def);
-    lefParser p2(lef);
+    lefParser p2(lef,1,8);
     auto c=p2.getCell("CELL2");
     auto v=p2.getVia(6,7);
     auto m=p2.getMetal(6);

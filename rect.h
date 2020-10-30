@@ -12,7 +12,7 @@ public:
     pos p1;
     pos p2;
     rect(pos p1, pos p2):p1(p1),p2(p2){}
-    rect() : p1(pos(0,0)), p2(pos(0,0)) {} //给tie使用的洞
+    rect() : p1(pos(0,0)), p2(pos(0,0)) {} //洞
 
     bool isNull() const { return p1.x==0 && p1.y==0 && p2.x==0 && p2.y==0; }
 
@@ -90,4 +90,15 @@ public:
                 return false;
         }
     }
+};
+
+
+class pinRect : public rect
+{
+public:
+    bool isOccupy=false;
+
+    pinRect(pos _p1, pos _p2):rect(_p1,_p2){}
+    pinRect() : rect() {} //洞
+    pinRect(const rect &r) : rect(r.p1,r.p2) {}
 };

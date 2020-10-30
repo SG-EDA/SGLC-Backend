@@ -91,7 +91,7 @@ float area=-1
 ``` cpp
 bool vertical
 ```
-本层导线是水平走线还是竖直走线，`true`为水平走线
+本层导线是水平走线还是竖直走线，`true`为竖直走线
 ##### 方法
 ``` cpp
 QString getName()

@@ -35,27 +35,60 @@ private:
             return result;
     }
 
+    tuple<line,line> genMinDistLine(float p1x,float p1y,float p2x,float p2y,
+                                    LEF::metal m1,LEF::metal m2)
+    {
+        //fix:在此处构造第一条导线l1
+
+        LEF::metal realM2;
+        if(m2.ID<m1.ID) //使得第二条导线离m2的层尽量近
+            realM2=lp.getMetal(m1.ID-1);
+        else
+            realM2=lp.getMetal(m1.ID+1);
+
+        //fix:在此处构造第二条导线l2
+
+        //fix:返回结果
+    }
+
     void connect(LEF::pin &p1, LEF::pin &p2)
     {
-        //避开目前有线位置和obs连接两个pin
         //1.查找二者最近的两个rect
-        rect r1,r2;
+        pinRect *r1;
+        pinRect *r2;
         tie(r1,r2,ignore)=this->getPinDist(p1,p2);
-        //2.尝试横/竖走线（注意横竖在不同层，连接横竖时需要打孔走孔）
-        //2.1.生成两个line矩形 l1 l2、及连通它们的孔
+        //warn:目前没考虑离同层线太近的问题，此时必须考虑，否则无法在碰撞检测中修复该问题
+        float p1x,p1y;
+        tie(p1x,p1y)=r1->getMidPos();
+        float p2x,p2y;
+        tie(p2x,p2y)=r2->getMidPos();
+        //暂时在这个位置标记r1 r2占用
+        r1->isOccupy=true;
+        r2->isOccupy=true;
+        //2.1.生成两个line矩形 l1 l2（孔暂不生成，最后调）
+        line l1,l2;
+        tie(l1,l2)=this->genMinDistLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal);
+
         auto fixConnect=[this](line l)
         {
             //2.2.检测每条横/竖线中无法走线（与障碍矩形相交），此时要获取到整个障碍矩形 - 使用checkLine
             auto obsRect=this->checkLine(l);
             if(obsRect.has_value())
             {
-                //3.在此处停止，进行局部修正（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点）
-                //4.使用修正后的坐标继续横/竖走线（循环）、如果无法绕过，继续打孔？
+                //3.在此处停止，进行局部修正
+                //（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
+                //4.对修正出的新线继续横/竖走线（循环）、如果无法绕过，继续打孔？
+                return true; //进行了修复
             }
             else
+            {
                 this->allLine.push_back(l);
+                return false; //未进行修复
+            }
         };
 
+        bool result=fixConnect(l1);
+        //fix:l2咋办？l1走完可能接不上了
     }
 
     LEF::pin& findLEFPin(QString instName, QString pinName)
@@ -73,7 +106,7 @@ private:
         }
     }
 
-    static tuple<rect,rect,float> getPinDist(LEF::pin &p1, LEF::pin &p2)
+    static tuple<pinRect*,pinRect*,float> getPinDist(LEF::pin &p1, LEF::pin &p2)
     {
         //rect中点
         float mid_p1_x ;
@@ -88,23 +121,35 @@ private:
         float last;
         int p1_rect_cnt_last;
         int p2_rect_cnt_last;
+
+        pinRect* p1_rect;
+        pinRect* p2_rect;
         //循环比较
         for(int p1_rect_cnt=0;p1_rect_cnt<p1.allRect.size();p1_rect_cnt++)
         {
+            p1_rect = &(p1.allRect[p1_rect_cnt]);
+            if(p1_rect->isOccupy)
+                continue;
+
             for(int p2_rect_cnt=1;p2_rect_cnt<p2.allRect.size();p2_rect_cnt++)
             {
                 if(p1_rect_cnt==p2_rect_cnt)
                     continue;
 
-                tie(mid_p1_x,mid_p1_y)=p1.allRect[p1_rect_cnt].getMidPos();
-                tie(mid_p2_x,mid_p2_y)=p2.allRect[p1_rect_cnt].getMidPos();
+                p2_rect = &(p2.allRect[p2_rect_cnt]);
+
+                if(p2_rect->isOccupy)
+                    continue;
+
+                tie(mid_p1_x,mid_p1_y)=p1_rect->getMidPos();
+                tie(mid_p2_x,mid_p2_y)=p2_rect->getMidPos();
 
                 div_x = mid_p1_x - mid_p2_x;
                 div_y = mid_p1_y - mid_p2_y;
 
                 div = abs(div_x) + abs(div_y);
 
-                if((p1_rect_cnt == 0) && (p1_rect_cnt == 0))
+                if((p1_rect_cnt == 0) && (p2_rect_cnt == 1))
                 {
                     last = div ;
                     p1_rect_cnt_last = p1_rect_cnt;
@@ -118,9 +163,9 @@ private:
                 }
             }
         }
-        //最小的rect编号和最小x+y距离
-        rect p1_rect = p1.allRect[p1_rect_cnt_last];
-        rect p2_rect = p2.allRect[p2_rect_cnt_last];
+
+        p1_rect = &(p1.allRect[p1_rect_cnt_last]);
+        p2_rect = &(p2.allRect[p2_rect_cnt_last]);
         return make_tuple(p1_rect,p2_rect,last);
     }
 

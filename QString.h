@@ -14,6 +14,7 @@ public:
 
     QString(const string a) : str(a) {}
     QString(const QString & a) : str(a.str) {}
+    QString(char c) : str(to_string(c)) {}
     static QString number(int a) { return QString(to_string(a)); }
 
     QString& operator= (const string& a)
@@ -26,6 +27,11 @@ public:
     {
         this->str=a.str;
         return *this;
+    }
+
+    char operator[](unsigned int i)
+    {
+        return this->str[i];
     }
 
     bool find(const QString & a)

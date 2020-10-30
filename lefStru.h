@@ -17,25 +17,25 @@ struct via
 
 struct metal
 {
-    int m;
+    int ID;
     float width;
     float spacing;
     float area=-1; //-1为无约束
     bool vertical; //false为horizontal
 
-    QString getName() { return "METAL"+QString::number(m); }
-    bool operator==(const metal &m) { return this->m==m.m; }
+    QString getName() { return "METAL"+QString::number(ID); }
+    bool operator==(const metal &m) { return this->ID==m.ID; }
 };
 
 struct pin
 {
     QString name;
-    QString layer;
-    vector<rect> allRect;
+    LEF::metal metal;
+    vector<pinRect> allRect;
 
     void setToLayout(float setX, float setY, QString dire)
     {
-        for(rect &r : this->allRect)
+        for(pinRect &r : this->allRect)
             r.setToLayout(setX,setY,dire);
     }
 };
@@ -76,6 +76,30 @@ public:
     float y2;
     LEF::metal metal;
 
+    line(){}
+    line(float x1,float y1,float x2,float y2,LEF::metal metal) :
+        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal) {}
+
+    line(float x,float y,float y2,LEF::metal metal,bool isVertical=true) :
+        metal(metal)
+    {
+        float w=metal.width/2;
+        if(isVertical)
+        {
+            this->x1=x-w; //x是左边的
+            this->x2=x+w;
+            this->y1=y;
+            this->y2=y2;
+        }
+        else //x y反转
+        {
+            this->y1=x-w; //x是下边的
+            this->y2=x+w;
+            this->x1=y;
+            this->x2=y2;
+        }
+    }
+
     rect toRect()
     {
         return rect(pos(x1,y1),pos(x2,y2));
@@ -86,8 +110,26 @@ public:
         QString metalName=this->metal.getName();
         rect result;
 
-        auto checkAndUpdate=[&result,this](vector<rect> allRect)
+        //检查pin里的rect
+        for(LEF::pin &p : c.allPin)
         {
+            if(p.metal==this->metal)
+            {
+                for(pinRect r : p.allRect)
+                {
+                    if(r.isIntersect(this->toRect(),this->metal.spacing,this->metal.width))
+                    {
+                        if(r.isLowerLeft(result))
+                            result=r;
+                    }
+                }
+            }
+        }
+
+        //检查obs
+        if (!(c.o.find(metalName) == c.o.end())) //这一层存在obs
+        {
+            vector<rect> &allRect=c.o[metalName];
             for(rect r : allRect)
             {
                 if(r.isIntersect(this->toRect(),this->metal.spacing,this->metal.width))
@@ -96,20 +138,6 @@ public:
                         result=r;
                 }
             }
-        };
-
-        //检查pin里的rect
-        for(LEF::pin &p : c.allPin)
-        {
-            if(p.layer==metalName)
-                checkAndUpdate(p.allRect);
-        }
-
-        //检查obs
-        if (!(c.o.find(metalName) == c.o.end())) //这一层存在obs
-        {
-            vector<rect> &allRect=c.o[metalName];
-            checkAndUpdate(allRect);
         }
 
         if(result.isNull())
