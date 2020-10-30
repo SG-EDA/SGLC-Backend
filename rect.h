@@ -82,5 +82,12 @@ public:
             return false;
         else if(r.isNull())
             return true;
+        else
+        {
+            if(r.p1.x>=this->p1.x && r.p1.y>=this->p1.y)
+                return true;
+            else
+                return false;
+        }
     }
 };
