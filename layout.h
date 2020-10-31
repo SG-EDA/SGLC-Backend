@@ -38,17 +38,38 @@ private:
     tuple<line,line> genMinDistLine(float p1x,float p1y,float p2x,float p2y,
                                     LEF::metal m1,LEF::metal m2)
     {
-        //fix:在此处构造第一条导线l1
-
         LEF::metal realM2;
         if(m2.ID<m1.ID) //使得第二条导线离m2的层尽量近
             realM2=lp.getMetal(m1.ID-1);
         else
             realM2=lp.getMetal(m1.ID+1);
 
-        //fix:在此处构造第二条导线l2
+        auto minSwap=[](float a,float b) { //小的放前面
+            if(a>b)
+                return make_tuple(b,a);
+            else
+                return make_tuple(a,b);
+        };
 
-        //fix:返回结果
+        line l1;
+        line l2;
+        float a,b;
+        if(m1.vertical == true)
+        {
+            tie(a,b)=minSwap(p1y,p2y);
+            l1 = line(p1x,a,b,m1,true);
+            tie(a,b)=minSwap(p1x,p2x);
+            l2 = line(p2y,a,b,realM2,false);
+        }
+        else
+        {
+            tie(a,b)=minSwap(p1x,p2x);
+            l1 = line(p1y,a,b,m1,false);
+            tie(a,b)=minSwap(p1y,p2y);
+            l2 = line(p2x,a,b,realM2,true);
+        }
+
+        return make_tuple(l1,l2);
     }
 
     void connect(LEF::pin &p1, LEF::pin &p2)
