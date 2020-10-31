@@ -1,6 +1,7 @@
 #pragma once
 #include "lefParser.h"
 #include "defParser.h"
+#include <queue>
 
 class layout
 {
@@ -35,7 +36,7 @@ private:
             return result;
     }
 
-    tuple<line,line> genMinDistLine(float p1x,float p1y,float p2x,float p2y,
+    queue<line> genMinDistLine(float p1x,float p1y,float p2x,float p2y,
                                     LEF::metal m1,LEF::metal m2)
     {
         LEF::metal realM2;
@@ -69,7 +70,11 @@ private:
             l2 = line(p2x,a,b,realM2,true);
         }
 
-        return make_tuple(l1,l2);
+        queue<line> result;
+        result.push(l1);
+        result.push(l2);
+
+        return result;
     }
 
     void connect(LEF::pin &p1, LEF::pin &p2)
@@ -87,8 +92,7 @@ private:
         r1->isOccupy=true;
         r2->isOccupy=true;
         //2.1.生成两个line矩形 l1 l2（孔暂不生成，最后调）
-        line l1,l2;
-        tie(l1,l2)=this->genMinDistLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal);
+        queue<line> testLine=this->genMinDistLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal);
 
         auto fixConnect=[this](line l)
         {
@@ -96,20 +100,27 @@ private:
             auto obsRect=this->checkLine(l);
             if(obsRect.has_value())
             {
+                queue<line> newLine;
                 //3.在此处停止，进行局部修正
                 //（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
                 //4.对修正出的新线继续横/竖走线（循环）、如果无法绕过，继续打孔？
-                return true; //进行了修复
+                return optional<queue<line>>(newLine); //进行了修复
             }
             else
             {
                 this->allLine.push_back(l);
-                return false; //未进行修复
+                return optional<queue<line>>(); //未进行修复
             }
         };
 
-        bool result=fixConnect(l1);
-        //fix:l2咋办？l1走完可能接不上了
+        while(!testLine.empty())
+        {
+            auto result=fixConnect(testLine.front());
+            if(!result.has_value())
+                testLine.pop();
+            else
+                testLine=result.value(); //队列直接作废
+        }
     }
 
     LEF::pin& findLEFPin(QString instName, QString pinName)
