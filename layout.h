@@ -120,6 +120,7 @@ private:
                 testLine.pop();
             else
                 testLine=result.value(); //队列直接作废
+                //fix:不能作废，是把原先的这个地方替换掉？也不行，因为结束位置不一样
         }
     }
 

@@ -51,6 +51,14 @@ public:
         return make_tuple(r2_x_mid,r2_y_mid);
     }
 
+    rect getOuterBorder(float spacing)
+    {
+        float expand=spacing;
+        pos p1=pos(this->p1.x-expand,this->p1.y-expand);
+        pos p2=pos(this->p2.x+expand,this->p2.y+expand);
+        return rect(p1,p2);
+    }
+
     bool isIntersect(const rect& r,float spacing,float width)
     {
         float r1_x_mid,r1_y_mid,r2_x_mid,r2_y_mid;
