@@ -36,54 +36,113 @@ private:
             return result;
     }
 
-    queue<line> genMinDistLine(float p1x,float p1y,float p2x,float p2y,
+    bool genLine(float p1x,float p1y,float p2x,float p2y,
                                     LEF::metal m1,LEF::metal m2)
     {
+        //求反向导线的金属层
         LEF::metal realM2;
         if(m2.ID<m1.ID) //使得第二条导线离m2的层尽量近
             realM2=lp.getMetal(m1.ID-1);
         else
             realM2=lp.getMetal(m1.ID+1);
 
-        auto minSwap=[](float a,float b) { //小的放前面
+        //小的放前面
+        auto minSwap=[](float a,float b) {
             if(a>b)
                 return make_tuple(b,a);
             else
                 return make_tuple(a,b);
         };
 
+        //求第一条导线
         line l1;
-        line l2;
         float a,b;
         if(m1.vertical == true)
         {
             tie(a,b)=minSwap(p1y,p2y);
             l1 = line(p1x,a,b,m1,true);
-            tie(a,b)=minSwap(p1x,p2x);
-            l2 = line(p2y,a,b,realM2,false);
         }
         else
         {
             tie(a,b)=minSwap(p1x,p2x);
             l1 = line(p1y,a,b,m1,false);
-            tie(a,b)=minSwap(p1y,p2y);
-            l2 = line(p2x,a,b,realM2,true);
         }
 
-        queue<line> result;
-        result.push(l1);
-        result.push(l2);
+        //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
+        auto fixConnect=[this](line l)
+        {
+            auto obsRect=this->checkLine(l);
+            if(obsRect.has_value())
+            {
+                rect border=obsRect.value().getOuterBorder(l.metal.spacing);
+                list<line> newLine; //新的导线组
+                //进行修正
+                //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
+                //2.如果1的走线结果依然存在碰撞，向反方向走线
+                //3.如果2的走线结果依然存在碰撞，移动l的起始位置到障碍区域之上，此时l1起点变了（递归？）
+                //这个应该返回到connect处理？（throw个异常，外面返回false）
+                //4.如果3的走线结果依然存在碰撞，移动l的其实位置到障碍区域之下，此时l1起点变了（递归？）
+                //同上
+                return optional<list<line>>(newLine); //进行了修复
+            }
+            else
+                return optional<list<line>>();
+        };
 
-        return result;
+        auto pushAllLine=[this](list<line> allL) {
+            for(line l : allL)
+                this->allLine.push_back(l);
+        };
+
+        //检查l1是否碰撞
+        try {
+
+        auto fixResult=fixConnect(l1);
+        if(!fixResult.has_value())
+        {
+            this->allLine.push_back(l1);
+            //起点终点没变，直接连l2（fix:如果不需要l2，在此处判断）
+            line l2;
+            if(m1.vertical == true)
+            {
+                tie(a,b)=minSwap(p1x,p2x);
+                l2 = line(p2y,a,b,realM2,false);
+            }
+            else
+            {
+                tie(a,b)=minSwap(p1y,p2y);
+                l2 = line(p2x,a,b,realM2,true);
+            }
+            //检查l2是否碰撞
+            fixResult=fixConnect(l2);
+            if(!fixResult.has_value())
+            {
+                this->allLine.push_back(l2);
+                return true;
+            }
+            else
+                pushAllLine(fixResult.value());
+        }
+        else
+        {
+            pushAllLine(fixResult.value());
+            //fix:连l2，此时l2起点变了（递归？）
+            //递归出口是布线成功，如果布线失败因为l2起点不能移，所以l1也得重新布线。返回到connect处理（返回false）
+        }
+
+        }
+        catch (...) {
+            return false;
+        }
     }
 
     void connect(LEF::pin &p1, LEF::pin &p2)
     {
-        //1.查找二者最近的两个rect
+        //查找二者最近的两个rect
         pinRect *r1;
         pinRect *r2;
         tie(r1,r2,ignore)=this->getPinDist(p1,p2);
-        //warn:目前没考虑离同层线太近的问题，此时必须考虑，否则无法在碰撞检测中修复该问题
+
         float p1x,p1y;
         tie(p1x,p1y)=r1->getMidPos();
         float p2x,p2y;
@@ -91,37 +150,8 @@ private:
         //暂时在这个位置标记r1 r2占用
         r1->isOccupy=true;
         r2->isOccupy=true;
-        //2.1.生成两个line矩形 l1 l2（孔暂不生成，最后调）
-        queue<line> testLine=this->genMinDistLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal);
-
-        auto fixConnect=[this](line l)
-        {
-            //2.2.检测每条横/竖线中无法走线（与障碍矩形相交），此时要获取到整个障碍矩形 - 使用checkLine
-            auto obsRect=this->checkLine(l);
-            if(obsRect.has_value())
-            {
-                queue<line> newLine;
-                //3.在此处停止，进行局部修正
-                //（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
-                //4.对修正出的新线继续横/竖走线（循环）、如果无法绕过，继续打孔？
-                return optional<queue<line>>(newLine); //进行了修复
-            }
-            else
-            {
-                this->allLine.push_back(l);
-                return optional<queue<line>>(); //未进行修复
-            }
-        };
-
-        while(!testLine.empty())
-        {
-            auto result=fixConnect(testLine.front());
-            if(!result.has_value())
-                testLine.pop();
-            else
-                testLine=result.value(); //队列直接作废
-                //fix:不能作废，是把原先的这个地方替换掉？也不行，因为结束位置不一样
-        }
+        //生成line矩形 l1 l2（孔暂不生成，最后调？）
+        this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal);
     }
 
     LEF::pin& findLEFPin(QString instName, QString pinName)
