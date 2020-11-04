@@ -37,7 +37,7 @@ private:
     }
 
     bool genLine(float p1x,float p1y,float p2x,float p2y,
-                                    LEF::metal m1,LEF::metal m2)
+                 LEF::metal m1,LEF::metal m2, list<line>& alreadyLine)
     {
         //求反向导线的金属层
         LEF::metal realM2;
@@ -89,9 +89,9 @@ private:
                 return optional<list<line>>();
         };
 
-        auto pushAllLine=[this](list<line> allL) {
+        auto pushAllLine=[&alreadyLine](list<line> allL) {
             for(line l : allL)
-                this->allLine.push_back(l);
+                alreadyLine.push_back(l);
         };
 
         //检查l1是否碰撞
@@ -100,7 +100,7 @@ private:
         auto fixResult=fixConnect(l1);
         if(!fixResult.has_value())
         {
-            this->allLine.push_back(l1);
+            alreadyLine.push_back(l1);
             //起点终点没变，直接连l2（fix:如果不需要l2，在此处判断）
             line l2;
             if(m1.vertical == true)
@@ -117,17 +117,25 @@ private:
             fixResult=fixConnect(l2);
             if(!fixResult.has_value())
             {
-                this->allLine.push_back(l2);
+                alreadyLine.push_back(l2);
                 return true;
             }
             else
+            {
                 pushAllLine(fixResult.value());
+                return true;
+            }
         }
         else
         {
-            pushAllLine(fixResult.value());
-            //fix:连l2，此时l2起点变了（递归？）
-            //递归出口是布线成功，如果布线失败因为l2起点不能移，所以l1也得重新布线。返回到connect处理（返回false）
+            list<line> newLine=fixResult.value();
+            pushAllLine(newLine);
+            auto lastLine=newLine.back();
+            //连l2，此时l2起点变了（递归）
+            bool result=this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,m2,alreadyLine);
+            //如果布线成功，线在递归里已经push进去了，所以返回false。如果递归失败，直接返回false，什么都没做
+            return result;
+            //布线失败因为l2起点不能移，所以l1也得重新布线。返回到connect处理
         }
 
         }
@@ -151,7 +159,18 @@ private:
         r1->isOccupy=true;
         r2->isOccupy=true;
         //生成line矩形 l1 l2（孔暂不生成，最后调？）
-        this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal);
+        list<line> alreadyLine;
+        bool result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine);
+        if(result)
+        {
+            for(line l : alreadyLine)
+                this->allLine.push_back(l);
+        }
+        else
+        {
+            alreadyLine.clear();
+            //fix:情况3和4
+        }
     }
 
     LEF::pin& findLEFPin(QString instName, QString pinName)
