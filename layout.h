@@ -133,7 +133,7 @@ private:
             auto lastLine=newLine.back();
             //连l2，此时l2起点变了（递归）
             bool result=this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,m2,alreadyLine);
-            //如果布线成功，线在递归里已经push进去了，所以返回false。如果递归失败，直接返回false，什么都没做
+            //如果布线成功，线在递归里已经push进去了，所以返回true。如果递归失败，直接返回false，什么都没做
             return result;
             //布线失败因为l2起点不能移，所以l1也得重新布线。返回到connect处理
         }
