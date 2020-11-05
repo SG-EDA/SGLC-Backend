@@ -101,8 +101,8 @@ private:
         if(!fixResult.has_value())
         {
             alreadyLine.push_back(l1);
-            //起点终点没变，直接连l2（fix:如果不需要l2，在此处判断）
-            if() //检查是否【不需要】第二根，在这里补充条件
+            //起点终点没变，直接连l2
+            if(p1x==p2x || p1y==p2y) //检查是否【不需要】第二根
                 return true;
             line l2;
             if(m1.vertical == true)
