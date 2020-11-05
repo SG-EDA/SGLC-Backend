@@ -102,6 +102,8 @@ private:
         {
             alreadyLine.push_back(l1);
             //起点终点没变，直接连l2（fix:如果不需要l2，在此处判断）
+            if() //检查是否【不需要】第二根，在这里补充条件
+                return true;
             line l2;
             if(m1.vertical == true)
             {
@@ -128,6 +130,7 @@ private:
         }
         else
         {
+            //最开始创建的l1是最短路径，如果绕了，终点一定变了，所以不用考虑这组导线直接到终点的情况
             list<line> newLine=fixResult.value();
             pushAllLine(newLine);
             auto lastLine=newLine.back();
