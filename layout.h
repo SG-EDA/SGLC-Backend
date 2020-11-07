@@ -89,13 +89,13 @@ private:
                 list<line> newLine; //新的导线组
                 //进行修正
                 //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
-				if((border.y1 < l.y1) && (border.y2 > l.y2))//横向
+				if((border.y1 < l.y1) && (border.y2 > l.y2)) //横向
 				{
 					newLine.push_back(line(l.x1                           , l.y1 , border.x1   , l.y2                     , l.metal));//画到障碍矩形的x1
 					newLine.push_back(line l1=line((border.x1-(l.y2-l.y1)) , l.y2 , border.x1  , border.y2                , l.metal));//绕线宽度和旧导线保持一致
 					newLine.push_back(line((border.x1-(l.y2-l.y1)) 		  , border.y2, l.x2	   , (border.y2+(l.y2-l.y1))  , l.metal));//y累加
 				}
-				else if((border.x1 < l.x1) && (border.x2 > l.x2))//纵向
+				else //纵向
 				{
 					newLine.push_back(line(l.x1                           , l.y1                    , l.x2 		  , border.y1   , l.metal));
 					newLine.push_back(line(border.x1                      , (border.y1-(l.x2-l.x1)) , l.x1 		  , border.y1   , l.metal));
@@ -108,6 +108,18 @@ private:
 				{
 					newLine.clear();
 					//2.如果1的走线结果依然存在碰撞，向反方向走线
+					if((border.y1 < l.y1) && (border.y2 > l.y2)) //横向
+				    {
+				    	newLine.push_back(line(l.x1                    , l.y1                    , border.x1               , l.y2      , l.metal));//画到障碍矩形的x1
+				    	newLine.push_back(line((border.x1-(l.y2-l.y1)) , border.y1               , border.x1               , l.y1      , l.metal));//绕线宽度和旧导线保持一致
+				    	newLine.push_back(line((border.x1-(l.y2-l.y1)) , (border.y1-(l.y2-l.y1)) , l.x2	                   , border.y1 , l.metal));//y累加
+				    }
+				    else //纵向
+				    {
+				    	newLine.push_back(line(l.x1                    , l.y1                    , l.x2 	               , border.y1 , l.metal));
+				    	newLine.push_back(line(l.x2                    , (border.y1-(l.x2-l.x1)) , border.x2               , border.y1 , l.metal));
+				    	newLine.push_back(line(border.x2               , (border.y1-(l.x2-l.x1)) , (border.x2+(l.x2-l.x1)) , l.y2      , l.metal));
+				    }
 					if(checkNewLine(newLine)) //检查2是否修复成功
 						return optional<list<line>>(newLine);
 					else
