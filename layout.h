@@ -37,7 +37,8 @@ private:
     }
 
     bool genLine(float p1x,float p1y,float p2x,float p2y,
-                 LEF::metal m1,LEF::metal m2, list<line>& alreadyLine)
+                 LEF::metal m1,LEF::metal m2, list<line>& alreadyLine,
+                 )
     {
         //求反向导线的金属层
         LEF::metal realM2;
@@ -74,13 +75,13 @@ private:
 			{
 				auto result=this->checkLine(l);
 				if(result.has_value())
-					return false;
+                    return result;
 			}
-			return true;
+            return optional<rect>();
 		};
 
         //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
-        auto fixConnect=[this](line l)
+        auto fixConnect=[this,checkNewLine](line l) //算上异常返回有三种情况：没有、有和暂时无解
         {
             auto obsRect=this->checkLine(l);
             if(obsRect.has_value())
@@ -89,45 +90,50 @@ private:
                 list<line> newLine; //新的导线组
                 //进行修正
                 //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
-				if((border.y1 < l.y1) && (border.y2 > l.y2)) //横向
+                if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
 				{
-					newLine.push_back(line(l.x1                           , l.y1 , border.x1   , l.y2                     , l.metal));//画到障碍矩形的x1
-					newLine.push_back(line l1=line((border.x1-(l.y2-l.y1)) , l.y2 , border.x1  , border.y2                , l.metal));//绕线宽度和旧导线保持一致
-					newLine.push_back(line((border.x1-(l.y2-l.y1)) 		  , border.y2, l.x2	   , (border.y2+(l.y2-l.y1))  , l.metal));//y累加
+                    newLine.push_back(line(l.x1                      , l.y1 , border.p1.x  , l.y2                     , l.metal));//画到障碍矩形的x1
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2 , border.p1.x  , border.p2.y                , l.metal));//绕线宽度和旧导线保持一致
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y, l.x2   , (border.p2.y+(l.y2-l.y1))  , l.metal));//y累加
 				}
 				else //纵向
 				{
-					newLine.push_back(line(l.x1                           , l.y1                    , l.x2 		  , border.y1   , l.metal));
-					newLine.push_back(line(border.x1                      , (border.y1-(l.x2-l.x1)) , l.x1 		  , border.y1   , l.metal));
-					newLine.push_back(line((border.x1-(l.x2-l.x1)) 		  , (border.y1-(l.x2-l.x1)) , border.x1   , l.y2 		, l.metal));
+                    newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y   , l.metal));
+                    newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y   , l.metal));
+                    newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		, l.metal));
 				}
 				//检查1是否修复成功
-				if(checkNewLine(newLine))
+                auto aboveObsRect=checkNewLine(newLine);
+                if(!aboveObsRect.has_value())
 					return optional<list<line>>(newLine);
 				else
 				{
 					newLine.clear();
 					//2.如果1的走线结果依然存在碰撞，向反方向走线
-					if((border.y1 < l.y1) && (border.y2 > l.y2)) //横向
+                    if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
 				    {
-				    	newLine.push_back(line(l.x1                    , l.y1                    , border.x1               , l.y2      , l.metal));//画到障碍矩形的x1
-				    	newLine.push_back(line((border.x1-(l.y2-l.y1)) , border.y1               , border.x1               , l.y1      , l.metal));//绕线宽度和旧导线保持一致
-				    	newLine.push_back(line((border.x1-(l.y2-l.y1)) , (border.y1-(l.y2-l.y1)) , l.x2	                   , border.y1 , l.metal));//y累加
+                        newLine.push_back(line(l.x1                    , l.y1                        , border.p1.x , l.y2      , l.metal));//画到障碍矩形的x1
+                        newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1      , l.metal));//绕线宽度和旧导线保持一致
+                        newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	                   , border.p1.y , l.metal));//y累加
 				    }
 				    else //纵向
 				    {
-				    	newLine.push_back(line(l.x1                    , l.y1                    , l.x2 	               , border.y1 , l.metal));
-				    	newLine.push_back(line(l.x2                    , (border.y1-(l.x2-l.x1)) , border.x2               , border.y1 , l.metal));
-				    	newLine.push_back(line(border.x2               , (border.y1-(l.x2-l.x1)) , (border.x2+(l.x2-l.x1)) , l.y2      , l.metal));
+                        newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , l.metal));
+                        newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , l.metal));
+                        newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , l.metal));
 				    }
-					if(checkNewLine(newLine)) //检查2是否修复成功
+                    auto belowObsRect=checkNewLine(newLine);
+                    if(!belowObsRect.has_value()) //检查2是否修复成功
 						return optional<list<line>>(newLine);
 					else
-						throw false;
-						//3.如果2的走线结果依然存在碰撞，移动l的起始位置到障碍区域之上，此时l1起点变了（递归？）
-						//这个应该返回到connect处理？（throw个异常，外面返回false）
-						//4.如果3的走线结果依然存在碰撞，移动l的其实位置到障碍区域之下，此时l1起点变了（递归？）
-						//同上
+                    {
+                        //返回aboveObsRect和belowObsRect
+                        throw make_tuple(aboveObsRect,belowObsRect);
+                        //3.如果2的走线结果依然存在碰撞，移动l的起始位置到障碍区域之上，此时l1起点变了（递归？）
+                        //这个应该返回到connect处理？（throw个异常，外面返回false）
+                        //4.如果3的走线结果依然存在碰撞，移动l的其实位置到障碍区域之下，此时l1起点变了（递归？）
+                        //同上
+                    }
 				}
             }
             else
