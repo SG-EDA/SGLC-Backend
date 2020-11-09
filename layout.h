@@ -36,9 +36,9 @@ private:
             return result;
     }
 
-    bool genLine(float p1x,float p1y,float p2x,float p2y,
-                 LEF::metal m1,LEF::metal m2, list<line>& alreadyLine,
-                 )
+    typedef tuple< optional<rect>, optional<rect> > ABRect;
+    optional<ABRect> genLine(float p1x,float p1y,float p2x,float p2y,
+                    LEF::metal m1,LEF::metal m2, list<line>& alreadyLine)
     {
         //求反向导线的金属层
         LEF::metal realM2;
@@ -81,7 +81,7 @@ private:
 		};
 
         //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
-        auto fixConnect=[this,checkNewLine](line l) //算上异常返回有三种情况：没有、有和暂时无解
+        auto fixConnect=[this,checkNewLine](line l) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解
         {
             auto obsRect=this->checkLine(l);
             if(obsRect.has_value())
@@ -128,7 +128,7 @@ private:
 					else
                     {
                         //返回aboveObsRect和belowObsRect
-                        throw make_tuple(aboveObsRect,belowObsRect);
+                        throw make_tuple(aboveObsRect,belowObsRect); //暂时无解，回到上层搞
                         //3.如果2的走线结果依然存在碰撞，移动l的起始位置到障碍区域之上，此时l1起点变了（递归？）
                         //这个应该返回到connect处理？（throw个异常，外面返回false）
                         //4.如果3的走线结果依然存在碰撞，移动l的其实位置到障碍区域之下，此时l1起点变了（递归？）
@@ -154,7 +154,7 @@ private:
             alreadyLine.push_back(l1);
             //起点终点没变，直接连l2
             if(p1x==p2x || p1y==p2y) //检查是否【不需要】第二根
-                return true;
+                return optional<ABRect>();
             line l2;
             if(m1.vertical == true)
             {
@@ -171,12 +171,12 @@ private:
             if(!fixResult.has_value())
             {
                 alreadyLine.push_back(l2);
-                return true;
+                return optional<ABRect>();
             }
             else
             {
                 pushAllLine(fixResult.value());
-                return true;
+                return optional<ABRect>();
             }
         }
         else
@@ -186,15 +186,15 @@ private:
             pushAllLine(newLine);
             auto lastLine=newLine.back();
             //连l2，此时l2起点变了（递归）
-            bool result=this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,m2,alreadyLine);
+            auto result=this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,m2,alreadyLine);
             //如果布线成功，线在递归里已经push进去了，所以返回true。如果递归失败，直接返回false，什么都没做
             return result;
             //布线失败因为l2起点不能移，所以l1也得重新布线。返回到connect处理
         }
 
         }
-        catch (...) {
-            return false;
+        catch (optional<ABRect> e) {
+            return e;
         }
     }
 
@@ -214,8 +214,8 @@ private:
         r2->isOccupy=true;
         //生成line矩形 l1 l2（孔暂不生成，最后调？）
         list<line> alreadyLine;
-        bool result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine);
-        if(result)
+        auto result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine);
+        if(!result.has_value())
         {
             for(line l : alreadyLine)
                 this->allLine.push_back(l);
@@ -223,6 +223,8 @@ private:
         else
         {
             alreadyLine.clear();
+            optional<rect> aboveObsRect,belowObsRect;
+            tie(aboveObsRect,belowObsRect)=result.value();
             //fix:情况3和4
         }
     }
