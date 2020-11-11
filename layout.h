@@ -3,7 +3,7 @@
 #include "defParser.h"
 #include <queue>
 
-typedef tuple< optional<rect>, optional<rect> > ABRect;
+typedef tuple<rect,rect> ABRect;
 struct GENRET
 {
     ABRect e;
@@ -75,7 +75,7 @@ private:
 					this->allLine.push_back(l);
 			}
 			//获取上下无法绕过的矩形
-            optional<rect> aboveObsRect,belowObsRect;
+            rect aboveObsRect,belowObsRect;
             tie(aboveObsRect,belowObsRect)=result.e;
 			
 			if(result.layer==1) //fix:解决l1遇到的问题，改变l1起点
@@ -87,7 +87,7 @@ private:
 				//fix:求新的p2x、p2y
 			}
 			
-			GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
+			GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1); //fix:递归得传中线坐标
         }
     }
 
