@@ -20,7 +20,7 @@ optional<rect> layout::checkNewLine(list<line> &newLine)
 }
 
 //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
-optional<list<line>> layout::fixConnect(line l) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解（抛出异常）
+optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解（抛出异常）
 {
     auto obsRect=this->checkLine(l);
     if(obsRect.has_value())
@@ -115,7 +115,7 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     //检查l1是否碰撞
     try {
 
-    auto fixResult=fixConnect(l1);
+    auto fixResult=fixConnect(l1,m1,realM2);
     if(!fixResult.has_value())
     {
         alreadyLine.push_back(l1); //确认无误添加
