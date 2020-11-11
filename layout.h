@@ -3,6 +3,13 @@
 #include "defParser.h"
 #include <queue>
 
+typedef tuple< optional<rect>, optional<rect> > ABRect;
+struct GENRET
+{
+    ABRect e;
+    int layer=-1; //-1代表布线成功
+};
+
 class layout
 {
 private:
@@ -36,168 +43,6 @@ private:
             return result;
     }
 
-    typedef tuple< optional<rect>, optional<rect> > ABRect;
-    optional<ABRect> genLine(float p1x,float p1y,float p2x,float p2y,
-                    LEF::metal m1,LEF::metal m2, list<line>& alreadyLine)
-    {
-        //求反向导线的金属层
-        LEF::metal realM2;
-        if(m2.ID<m1.ID) //使得第二条导线离m2的层尽量近
-            realM2=lp.getMetal(m1.ID-1);
-        else
-            realM2=lp.getMetal(m1.ID+1);
-
-        //小的放前面
-        auto minSwap=[](float a,float b) {
-            if(a>b)
-                return make_tuple(b,a);
-            else
-                return make_tuple(a,b);
-        };
-
-        //求第一条导线
-        line l1;
-        float a,b;
-        if(m1.vertical == true)
-        {
-            tie(a,b)=minSwap(p1y,p2y);
-            l1 = line(p1x,a,b,m1,true);
-        }
-        else
-        {
-            tie(a,b)=minSwap(p1x,p2x);
-            l1 = line(p1y,a,b,m1,false);
-        }
-		
-		auto checkNewLine=[this](list<line> &newLine)
-		{
-			for(line& l : newLine)
-			{
-				auto result=this->checkLine(l);
-				if(result.has_value())
-                    return result;
-			}
-            return optional<rect>();
-		};
-
-        //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
-        auto fixConnect=[this,checkNewLine](line l) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解
-        {
-            auto obsRect=this->checkLine(l);
-            if(obsRect.has_value())
-            {
-                rect border=obsRect.value().getOuterBorder(l.metal.spacing);
-                list<line> newLine; //新的导线组
-                //进行修正
-                //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
-                if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
-				{
-                    newLine.push_back(line(l.x1                      , l.y1 , border.p1.x  , l.y2                     , l.metal));//画到障碍矩形的x1
-                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2 , border.p1.x  , border.p2.y                , l.metal));//绕线宽度和旧导线保持一致
-                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y, l.x2   , (border.p2.y+(l.y2-l.y1))  , l.metal));//y累加
-				}
-				else //纵向
-				{
-                    newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y   , l.metal));
-                    newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y   , l.metal));
-                    newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		, l.metal));
-				}
-				//检查1是否修复成功
-                auto aboveObsRect=checkNewLine(newLine);
-                if(!aboveObsRect.has_value())
-					return optional<list<line>>(newLine);
-				else
-				{
-					newLine.clear();
-					//2.如果1的走线结果依然存在碰撞，向反方向走线
-                    if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
-				    {
-                        newLine.push_back(line(l.x1                    , l.y1                        , border.p1.x , l.y2      , l.metal));//画到障碍矩形的x1
-                        newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1      , l.metal));//绕线宽度和旧导线保持一致
-                        newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	                   , border.p1.y , l.metal));//y累加
-				    }
-				    else //纵向
-				    {
-                        newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , l.metal));
-                        newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , l.metal));
-                        newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , l.metal));
-				    }
-                    auto belowObsRect=checkNewLine(newLine);
-                    if(!belowObsRect.has_value()) //检查2是否修复成功
-						return optional<list<line>>(newLine);
-					else
-                    {
-                        //返回aboveObsRect和belowObsRect
-                        throw make_tuple(aboveObsRect,belowObsRect); //暂时无解，回到上层搞
-                        //3.如果2的走线结果依然存在碰撞，移动l的起始位置到障碍区域之上，此时l1起点变了（递归？）
-                        //这个应该返回到connect处理？（throw个异常，外面返回false）
-                        //4.如果3的走线结果依然存在碰撞，移动l的其实位置到障碍区域之下，此时l1起点变了（递归？）
-                        //同上
-                    }
-				}
-            }
-            else
-                return optional<list<line>>();
-        };
-
-        auto pushAllLine=[&alreadyLine](list<line> allL) {
-            for(line l : allL)
-                alreadyLine.push_back(l);
-        };
-
-        //检查l1是否碰撞
-        try {
-
-        auto fixResult=fixConnect(l1);
-        if(!fixResult.has_value())
-        {
-            alreadyLine.push_back(l1);
-            //起点终点没变，直接连l2
-            if(p1x==p2x || p1y==p2y) //检查是否【不需要】第二根
-                return optional<ABRect>();
-            line l2;
-            if(m1.vertical == true)
-            {
-                tie(a,b)=minSwap(p1x,p2x);
-                l2 = line(p2y,a,b,realM2,false);
-            }
-            else
-            {
-                tie(a,b)=minSwap(p1y,p2y);
-                l2 = line(p2x,a,b,realM2,true);
-            }
-            //检查l2是否碰撞
-            fixResult=fixConnect(l2);
-            if(!fixResult.has_value())
-            {
-                alreadyLine.push_back(l2);
-                return optional<ABRect>();
-            }
-            else
-            {
-                pushAllLine(fixResult.value());
-                return optional<ABRect>();
-            }
-        }
-        else
-        {
-            //最开始创建的l1是最短路径，如果绕了，终点一定变了，所以不用考虑这组导线直接到终点的情况
-            list<line> newLine=fixResult.value();
-            pushAllLine(newLine);
-            auto lastLine=newLine.back();
-            //连l2，此时l2起点变了（递归）
-            auto result=this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,m2,alreadyLine);
-            //如果布线成功，线在递归里已经push进去了，所以返回true。如果递归失败，直接返回false，什么都没做
-            return result;
-            //布线失败因为l2起点不能移，所以l1也得重新布线。返回到connect处理
-        }
-
-        }
-        catch (optional<ABRect> e) {
-            return e;
-        }
-    }
-
     void connect(LEF::pin &p1, LEF::pin &p2)
     {
         //查找二者最近的两个rect
@@ -214,18 +59,25 @@ private:
         r2->isOccupy=true;
         //生成line矩形 l1 l2（孔暂不生成，最后调？）
         list<line> alreadyLine;
-        auto result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine);
-        if(!result.has_value())
+        GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
+        if(result.layer==-1) //无问题
         {
             for(line l : alreadyLine)
                 this->allLine.push_back(l);
         }
-        else
+        else if(result.layer==1) //l1遇到问题
         {
             alreadyLine.clear();
             optional<rect> aboveObsRect,belowObsRect;
-            tie(aboveObsRect,belowObsRect)=result.value();
-            //fix:情况3和4
+            tie(aboveObsRect,belowObsRect)=result.e;
+            //fix:情况3和4，改变l1起点
+        }
+        else //l2遇到问题
+        {
+            //把没问题的线先搞进去
+            for(line l : alreadyLine)
+                this->allLine.push_back(l);
+            //fix:情况3和4，改变l2终点
         }
     }
 
@@ -342,6 +194,12 @@ private:
         }
         return LEFallPin;
     }
+
+    //genLine需要的
+    optional<rect> checkNewLine(list<line> &newLine);
+    optional<list<line>> fixConnect(line l);
+    GENRET genLine(float p1x,float p1y,float p2x,float p2y,
+                LEF::metal m1,LEF::metal m2, list<line> &alreadyLine, int layer); //返回值为递归层数
 
 public:
     defParser dp;

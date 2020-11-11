@@ -5,6 +5,7 @@ CONFIG += qt
 CONFIG += c++17
 
 SOURCES += \
+        connect.cpp \
         main.cpp
 
 HEADERS += \
