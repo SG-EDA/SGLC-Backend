@@ -78,14 +78,16 @@ private:
             optional<rect> aboveObsRect,belowObsRect;
             tie(aboveObsRect,belowObsRect)=result.e;
 			
-			if(result.layer==1) //解决l1遇到的问题，改变l1起点
+			if(result.layer==1) //fix:解决l1遇到的问题，改变l1起点
 			{
-				
+				//fix:求新的p1x、p1y
 			}
-			else //解决l2遇到的问题，改变l2终点
+			else //fix:解决l2遇到的问题，改变l2终点
 			{
-				
+				//fix:求新的p2x、p2y
 			}
+			
+			GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
         }
     }
 
