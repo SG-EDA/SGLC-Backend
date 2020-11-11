@@ -65,19 +65,27 @@ private:
             for(line l : alreadyLine)
                 this->allLine.push_back(l);
         }
-        else if(result.layer==1) //l1遇到问题
+        else 
         {
-            alreadyLine.clear();
+			if(result.layer==1) //l1遇到问题说明没有一条线布线成功，清空
+				alreadyLine.clear();
+			else //l2遇到问题就把没问题的线先搞进去
+			{
+				for(line l : alreadyLine)
+					this->allLine.push_back(l);
+			}
+			//获取上下无法绕过的矩形
             optional<rect> aboveObsRect,belowObsRect;
             tie(aboveObsRect,belowObsRect)=result.e;
-            //fix:情况3和4，改变l1起点
-        }
-        else //l2遇到问题
-        {
-            //把没问题的线先搞进去
-            for(line l : alreadyLine)
-                this->allLine.push_back(l);
-            //fix:情况3和4，改变l2终点
+			
+			if(result.layer==1) //解决l1遇到的问题，改变l1起点
+			{
+				
+			}
+			else //解决l2遇到的问题，改变l2终点
+			{
+				
+			}
         }
     }
 
