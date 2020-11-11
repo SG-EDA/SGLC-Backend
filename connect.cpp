@@ -67,7 +67,7 @@ optional<list<line>> layout::fixConnect(line l) //算上异常返回有三种情
             else
             {
                 //返回aboveObsRect和belowObsRect
-                throw make_tuple(aboveObsRect,belowObsRect); //暂时无解，回到上层搞
+                throw make_tuple(aboveObsRect.value(),belowObsRect.value()); //暂时无解，回到上层搞
                 //3.如果2的走线结果依然存在碰撞，移动l的起始位置到障碍区域之上，此时l1起点变了（递归）
                 //这个应该返回到递归上一层处理（throw个异常，外面返回false）
                 //4.如果3的走线结果依然存在碰撞，移动l的其实位置到障碍区域之下，此时l1起点变了（递归）
