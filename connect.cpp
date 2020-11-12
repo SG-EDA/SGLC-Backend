@@ -81,17 +81,10 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
 
 
 GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
-                           LEF::metal m1,LEF::metal m2, list<line> &alreadyLine, int layer)
+                           LEF::metal m1,LEF::metal realM2, list<line> &alreadyLine, int layer)
 {
     if(p1x==p2x && p1y==p2y) //不需要下一根导线了，递归出口
         return GENRET();
-
-    //求反向导线的金属层
-    LEF::metal realM2;
-    if(m2.ID<m1.ID) //使得第二条导线离m2的层尽量近
-        realM2=lp.getMetal(m1.ID-1);
-    else
-        realM2=lp.getMetal(m1.ID+1);
 
     //求第一条导线
     line l1;
@@ -119,7 +112,7 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     if(!fixResult.has_value())
     {
         alreadyLine.push_back(l1); //确认无误添加
-        return this->genLine(l1.x2,l1.y2,p2x,p2y,m1,m2,alreadyLine,layer+1);
+        return this->genLine(l1.x2,l1.y2,p2x,p2y,m1,realM2,alreadyLine,layer+1);
     }
     else
     {
@@ -128,11 +121,11 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
         pushAllLine(newLine); //1、2种情况，确认无误添加
         auto lastLine=newLine.back();
         //连l2，此时l2起点变了（递归）
-        return this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,m2,alreadyLine,layer+1);
+        return this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,realM2,alreadyLine,layer+1);
     }
 
     }
-    catch (ABRect e) {
+    catch (tuple<rect,rect> e) {
         //表明遇到3、4情况。返回无法处理的边缘障碍矩形和本层的layer（layer=1为l1遇到问题，2为l2遇到问题）
         GENRET result;
         result.layer=layer;

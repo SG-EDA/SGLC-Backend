@@ -3,10 +3,9 @@
 #include "defParser.h"
 #include <queue>
 
-typedef tuple<rect,rect> ABRect;
 struct GENRET
 {
-    ABRect e;
+    tuple<rect,rect> e;
     int layer=-1; //-1代表布线成功
 };
 
@@ -57,9 +56,17 @@ private:
         //暂时在这个位置标记r1 r2占用
         r1->isOccupy=true;
         r2->isOccupy=true;
+        //找到要走线的层
+        LEF::metal m1=p1.metal;
+        //求反向导线的金属层
+        LEF::metal realM2;
+        if(p2.metal.ID<m1.ID) //使得第二条导线离m2的层尽量近
+            realM2=lp.getMetal(m1.ID-1);
+        else
+            realM2=lp.getMetal(m1.ID+1);
         //生成line矩形 l1 l2（孔暂不生成，最后调？）
         list<line> alreadyLine;
-        GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
+        GENRET result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
         if(result.layer==-1) //无问题
         {
             for(line l : alreadyLine)
@@ -80,10 +87,14 @@ private:
 			
 			if(result.layer==1) //fix:解决l1遇到的问题，改变l1起点
 			{
+                aboveObsRect=aboveObsRect.getOuterBorder(m1.spacing);
+                belowObsRect=belowObsRect.getOuterBorder(m1.spacing);
 				//fix:求新的p1x、p1y
 			}
 			else //fix:解决l2遇到的问题，改变l2终点
 			{
+                aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
+                belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
 				//fix:求新的p2x、p2y
 			}
 			
@@ -207,9 +218,9 @@ private:
 
     //genLine需要的
     optional<rect> checkNewLine(list<line> &newLine);
-    optional<list<line>> fixConnect(line l);
-    GENRET genLine(float p1x,float p1y,float p2x,float p2y,
-                LEF::metal m1,LEF::metal m2, list<line> &alreadyLine, int layer); //返回值为递归层数
+    optional<list<line>> fixConnect(line l,LEF::metal m1,LEF::metal realM2);
+    GENRET genLine(float p1x, float p1y, float p2x, float p2y,
+                LEF::metal m1, LEF::metal realM2, list<line> &alreadyLine, int layer); //返回值为递归层数
 
 public:
     defParser dp;
