@@ -85,13 +85,13 @@ private:
             rect aboveObsRect,belowObsRect;
             tie(aboveObsRect,belowObsRect)=result.e;
 			
-			if(result.layer==1) //fix:解决l1遇到的问题，改变l1起点
+            if(result.layer==1) //解决l1遇到的问题，改变l1起点
 			{
                 aboveObsRect=aboveObsRect.getOuterBorder(m1.spacing);
                 belowObsRect=belowObsRect.getOuterBorder(m1.spacing);
 				//fix:求新的p1x、p1y
 			}
-			else //fix:解决l2遇到的问题，改变l2终点
+            else //解决l2遇到的问题，改变l2终点
 			{
                 aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
                 belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
