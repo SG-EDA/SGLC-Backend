@@ -96,9 +96,12 @@ private:
                 aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
                 belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
 				//fix:求新的p2x、p2y
+                line lastLine=this->allLine.back();
+                p1x=lastLine.endPosX;
+                p2x=lastLine.endPosY;
 			}
 			
-			GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1); //fix:递归得传中线坐标
+            GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
         }
     }
 

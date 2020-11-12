@@ -112,16 +112,16 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     if(!fixResult.has_value())
     {
         alreadyLine.push_back(l1); //确认无误添加
-        return this->genLine(l1.x2,l1.y2,p2x,p2y,m1,realM2,alreadyLine,layer+1);
+        return this->genLine(l1.endPosX,l1.endPosY,p2x,p2y,m1,realM2,alreadyLine,layer+1);
     }
     else
     {
         //最开始创建的l1是最短路径，如果绕了，终点一定变了，所以不用考虑这组导线直接到终点的情况
         list<line> newLine=fixResult.value();
         pushAllLine(newLine); //1、2种情况，确认无误添加
-        auto lastLine=newLine.back();
+        line lastLine=newLine.back();
         //连l2，此时l2起点变了（递归）
-        return this->genLine(lastLine.x2,lastLine.y2,p2x,p2y,m1,realM2,alreadyLine,layer+1);
+        return this->genLine(lastLine.endPosX,lastLine.endPosY,p2x,p2y,m1,realM2,alreadyLine,layer+1);
     }
 
     }

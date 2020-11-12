@@ -75,13 +75,15 @@ public:
     float x2;
     float y2;
     LEF::metal metal;
+    float endPosX;
+    float endPosY;
 
     line(){}
-    line(float x1,float y1,float x2,float y2,LEF::metal metal) :
-        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal) {}
+    line(float x1,float y1,float x2,float y2,LEF::metal metal, float endPosX, float endPosY) :
+        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal), endPosX(endPosX), endPosY(endPosY) {}
 
-    line(float x,float y,float y2,LEF::metal metal,bool isVertical=true) :
-        metal(metal)
+    line(float x,float y,float y2,float endPosX, float endPosY,LEF::metal metal,bool isVertical=true) :
+        metal(metal), endPosX(endPosX), endPosY(endPosY)
     {
         float w=metal.width/2;
         if(isVertical)
