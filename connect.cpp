@@ -31,15 +31,33 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
         //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
         if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
         {
-            newLine.push_back(line(l.x1                      , l.y1 , border.p1.x  , l.y2                     , l.metal));//画到障碍矩形的x1
-            newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2 , border.p1.x  , border.p2.y                , l.metal));//绕线宽度和旧导线保持一致
-            newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y, l.x2   , (border.p2.y+(l.y2-l.y1))  , l.metal));//y累加
+            if(m1.vertical == true)
+            {
+                newLine.push_back(line(l.x1                      , l.y1        , border.p1.x , l.y2                      , realM2));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2        , border.p1.x , border.p2.y               , m1    ));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y , l.x2        , (border.p2.y+(l.y2-l.y1)) , realM2));
+            }
+            else
+            {
+                newLine.push_back(line(l.x1                      , l.y1        , border.p1.x , l.y2                      , m1    ));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2        , border.p1.x , border.p2.y               , realM2));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y , l.x2        , (border.p2.y+(l.y2-l.y1)) , m1    ));
+            }
         }
         else //纵向
         {
-            newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y   , l.metal));
-            newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y   , l.metal));
-            newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		, l.metal));
+            if(m1.vertical == true)
+            {
+                newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y , m1    ));
+                newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y , realM2));
+                newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		 , m1    ));
+            }
+            else
+            {
+                newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y , realM2));
+                newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y , m1    ));
+                newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		 , realM2));
+            }
         }
         //检查1是否修复成功
         auto aboveObsRect=checkNewLine(newLine);
@@ -51,15 +69,33 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
             //2.如果1的走线结果依然存在碰撞，向反方向走线
             if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
             {
-                newLine.push_back(line(l.x1                    , l.y1                        , border.p1.x , l.y2      , l.metal));//画到障碍矩形的x1
-                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1      , l.metal));//绕线宽度和旧导线保持一致
-                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	                   , border.p1.y , l.metal));//y累加
+                if(m1.vertical == true)
+                {
+                    newLine.push_back(line(l.x1                      , l.y1                      , border.p1.x , l.y2        , realM2));//画到障碍矩形的x1
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1        , m1    ));//绕线宽度和旧导线保持一致
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	       , border.p1.y , realM2));//y累加
+                }
+                else
+                {
+                    newLine.push_back(line(l.x1                      , l.y1                      , border.p1.x , l.y2        , m1    ));
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1        , realM2));
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	       , border.p1.y , m1    ));
+                }
             }
             else //纵向
             {
-                newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , l.metal));
-                newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , l.metal));
-                newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , l.metal));
+                if(m1.vertical == true)
+                {
+                    newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , m1    ));
+                    newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , realM2));
+                    newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , m1    ));
+                }
+                else
+                {
+                    newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , realM2));
+                    newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , m1    ));
+                    newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , realM2));
+                }
             }
             auto belowObsRect=checkNewLine(newLine);
             if(!belowObsRect.has_value()) //检查2是否修复成功
