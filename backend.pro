@@ -10,6 +10,7 @@ SOURCES += \
 
 HEADERS += \
     QString.h \
+    codegen.h \
     defParser.h \
     defStru.h \
     help.h \

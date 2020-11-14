@@ -102,9 +102,10 @@ private:
     }
 
     const int minMetalID;
-    vector<LEF::metal> allMetal;
 
 public:
+    vector<LEF::metal> allMetal;
+
     lefParser(QString code, int minMetalID, int maxMetalID) : minMetalID(minMetalID)
     {
         codeList=code.split("\n");
