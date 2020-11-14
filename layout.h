@@ -23,15 +23,18 @@ private:
         }
 
         rect lr=l.toRect();
-        for(line &li : this->allLine) //fix:剪枝同上
+        for(vector<line> &allLine : this->allNetLine)
         {
-            if(l.metal==li.metal)
+            for(line &li : allLine) //fix:剪枝同上
             {
-                rect lir=li.toRect();
-                if(lr.isIntersect(lir,l.metal.spacing,l.metal.width))
+                if(l.metal==li.metal)
                 {
-                    if(lir.isLowerLeft(result)) //新找到的在左下
-                        result=lir;
+                    rect lir=li.toRect();
+                    if(lr.isIntersect(lir,l.metal.spacing,l.metal.width))
+                    {
+                        if(lir.isLowerLeft(result)) //新找到的在左下
+                            result=lir;
+                    }
                 }
             }
         }
@@ -42,7 +45,7 @@ private:
             return result;
     }
 
-    void connect(LEF::pin &p1, LEF::pin &p2)
+    void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine)
     {
         //查找二者最近的两个rect
         pinRect *r1;
@@ -70,16 +73,17 @@ private:
         if(result.layer==-1) //无问题
         {
             for(line l : alreadyLine)
-                this->allLine.push_back(l);
+                allLine.push_back(l);
         }
         else 
         {
+            //fix:循环尝试
 			if(result.layer==1) //l1遇到问题说明没有一条线布线成功，清空
 				alreadyLine.clear();
 			else //l2遇到问题就把没问题的线先搞进去
 			{
 				for(line l : alreadyLine)
-					this->allLine.push_back(l);
+                    allLine.push_back(l);
 			}
 			//获取上下无法绕过的矩形
             rect aboveObsRect,belowObsRect;
@@ -96,7 +100,7 @@ private:
                 aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
                 belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
 				//fix:求新的p2x、p2y
-                line lastLine=this->allLine.back();
+                line lastLine=allLine.back();
                 p1x=lastLine.endPosX;
                 p2x=lastLine.endPosY;
 			}
@@ -228,7 +232,8 @@ private:
 public:
     defParser dp;
     lefParser lp;
-    vector<line> allLine; //将net转化为line
+    //vector<line> allLine; //将net转化为line
+    vector<vector<line>> allNetLine;
     vector<LEF::cell> allCell; //版图中放置的所有cell（转换为版图坐标系）
 
     layout(defParser dp, lefParser lp) : dp(dp), lp(lp)
@@ -246,11 +251,13 @@ public:
     {
         for(DEF::net &n : dp.allNet)
         {
+            vector<line> allLine;
             auto LEFallPin=this->sortAllPin(n.allPin);
             for(int i=1;i<LEFallPin.size();i++)
             {
-                this->connect(LEFallPin[i-1],LEFallPin[i]);
+                this->connect(LEFallPin[i-1],LEFallPin[i],allLine);
             }
+            this->allNetLine.push_back(allLine);
         }
     }
 };

@@ -3,9 +3,18 @@
 
 class codegen
 {
+private:
+    QString genNet(vector<line> &allLine)
+    {
+
+    }
+
 public:
     layout l;
-    codegen(layout l) : l(l) {}
+    codegen(layout l) : l(l)
+    {
+
+    }
 
     QString genNONDEFAULTRULES()
     {
@@ -19,5 +28,10 @@ public:
         result+=";\n";
         result+="END NONDEFAULTRULES\n";
         return result;
+    }
+
+    QString genNETS()
+    {
+        //使用类似NETparser，每个net结束之后添加对应下标的line
     }
 };

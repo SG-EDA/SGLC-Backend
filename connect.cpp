@@ -136,7 +136,7 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
         l1 = line(p1y,a,b,m1,false);
     }
 
-    auto pushAllLine=[&alreadyLine](list<line> allL) {
+    auto pushAllLine=[&alreadyLine](list<line> &allL) {
         for(line l : allL)
             alreadyLine.push_back(l);
     };
