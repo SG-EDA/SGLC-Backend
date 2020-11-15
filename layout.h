@@ -9,6 +9,22 @@ struct GENRET
     int layer=-1; //-1代表布线成功
 };
 
+class via
+{
+public:
+    float x;
+    float y;
+    LEF::via v;
+    LEF::metal m;
+    via(float x,float y, LEF::via v, lefParser &lp) : x(x), y(y), v(v), m(lp.getMetal(v.m1)) {}
+    QString getName() { return "via"+QString::number(v.m1); }
+
+    QString getPos()
+    {
+        return "( "+QString::number(int(this->x))+" "+QString::number(int(this->y))+" )";
+    }
+};
+
 class layout
 {
 private:
@@ -79,7 +95,7 @@ private:
         {
             while(1) //循环尝试
             {
-                if(result.layer==2) //l2遇到问题就把没问题的线先搞进去
+                if(result.layer==2) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
                 {
                     for(line l : alreadyLine)
                         allLine.push_back(l);
@@ -244,6 +260,7 @@ public:
     lefParser lp;
     //vector<line> allLine; //将net转化为line
     vector<vector<line>> allNetLine;
+    vector<vector<via>> allNetVia;
     vector<LEF::cell> allCell; //版图中放置的所有cell（转换为版图坐标系）
 
     layout(defParser dp, lefParser lp) : dp(dp), lp(lp)

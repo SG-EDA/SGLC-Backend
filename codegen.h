@@ -4,7 +4,8 @@
 class codegen
 {
 private:
-    int genNet(int i,QString &result,vector<line> &allLine) //处理一个net，在后面添加line。返回处理完的行下标
+    //处理一个net，在后面添加line和via。返回处理完的行下标
+    int genNet(int i,QString &result,vector<line> &allLine, vector<via> &allVia)
     {
         result+=this->l.dp.codeList[i]+"\n"; //把net那行加进去
         i++;
@@ -20,7 +21,16 @@ private:
                 //到结尾了
                 result+="+ ROUTED ";
                 bool first=true;
-                //fix:把allVia加上
+                //把allVia加上
+                for(via v : allVia)
+                {
+                    if(!first)
+                        result+="NEW ";
+                    else
+                        first=false;
+
+                    result=v.m.getName()+" "+v.getPos()+" "+v.getName()+"\n";
+                }
                 //把allLine加上
                 for(line l : allLine)
                 {
@@ -34,7 +44,7 @@ private:
                 break;
             }
         }
-
+        result+=";\n";
         return i;
     }
 
@@ -75,7 +85,7 @@ public:
             {
                 if(stri.indexOf("net")!=-1) //如果碰到一个net，转到genNet里去把这个处理完
                 {
-                    i=this->genNet(i,result,l.allNetLine[netNum]);
+                    i=this->genNet(i,result,l.allNetLine[netNum],l.allNetVia[netNum]);
                     netNum++;
                 }
 
