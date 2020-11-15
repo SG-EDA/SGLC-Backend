@@ -147,4 +147,14 @@ public:
         else
             return result;
     }
+
+    QString getPos1()
+    {
+        return "( "+QString::number(this->x1)+" "+QString::number(this->y1)+" )";
+    }
+
+    QString getPos2()
+    {
+        return "( "+QString::number(this->x2)+" "+QString::number(this->y2)+" )";
+    }
 };

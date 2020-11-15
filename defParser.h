@@ -5,8 +5,6 @@
 class defParser
 {
 private:
-    QStringList codeList;
-
     int parseComponents(int i)
     {
         for(int j=i;j<this->codeList.length();j++)
@@ -81,6 +79,7 @@ public:
     vector<DEF::component> allComponent;
     vector<DEF::pin> allPin; //接口
     vector<DEF::net> allNet; //导线连接
+    QStringList codeList;
 
     defParser(QString code)
     {

@@ -4,9 +4,38 @@
 class codegen
 {
 private:
-    QString genNet(vector<line> &allLine)
+    int genNet(int i,QString &result,vector<line> &allLine) //处理一个net，在后面添加line。返回处理完的行下标
     {
+        result+=this->l.dp.codeList[i]+"\n"; //把net那行加进去
+        i++;
 
+        for(;i<this->l.dp.codeList.length();i++)
+        {
+            QString stri=this->l.dp.codeList[i];
+            result+=stri+"\n";
+            //向下探测有没有到结尾
+            QString stri2=this->l.dp.codeList[i+1];
+            if(stri.indexOf("net")!=-1)
+            {
+                //到结尾了
+                result+="+ ROUTED ";
+                bool first=true;
+                //fix:把allVia加上
+                //把allLine加上
+                for(line l : allLine)
+                {
+                    if(!first)
+                        result+="NEW ";
+                    else
+                        first=false;
+
+                    result+=l.metal.getName()+" "+l.getPos1()+" "+l.getPos2()+"\n";
+                }
+                break;
+            }
+        }
+
+        return i;
     }
 
 public:
@@ -16,7 +45,7 @@ public:
 
     }
 
-    QString genNONDEFAULTRULES()
+    /*QString genNONDEFAULTRULES()
     {
         QString result="NONDEFAULTRULES 1 ;\n";
         result+="- DEFAULT_METAL1_580\n";
@@ -28,10 +57,36 @@ public:
         result+=";\n";
         result+="END NONDEFAULTRULES\n";
         return result;
-    }
+    }*/
 
     QString genNETS()
     {
+        QString result;
         //使用类似NETparser，每个net结束之后添加对应下标的line
+        bool findNet=false;
+        int netNum=0;
+        for(int i=0;i<this->l.dp.codeList.length();i++)
+        {
+            QString stri=this->l.dp.codeList[i];
+            if(stri.indexOf("NETS")!=-1)
+                findNet=true;
+
+            if(findNet)
+            {
+                if(stri.indexOf("net")!=-1) //如果碰到一个net，转到genNet里去把这个处理完
+                {
+                    i=this->genNet(i,result,l.allNetLine[netNum]);
+                    netNum++;
+                }
+
+                if(stri.indexOf("END NETS")!=-1)
+                {
+                    //END这句不会在前面添加到findNet里面去
+                    result+=stri+"\n";
+                    return result;
+                }
+            }
+        }
+        return result;
     }
 };
