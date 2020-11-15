@@ -77,35 +77,45 @@ private:
         }
         else 
         {
-            //fix:循环尝试
-			if(result.layer==1) //l1遇到问题说明没有一条线布线成功，清空
-				alreadyLine.clear();
-			else //l2遇到问题就把没问题的线先搞进去
-			{
-				for(line l : alreadyLine)
-                    allLine.push_back(l);
-			}
-			//获取上下无法绕过的矩形
-            rect aboveObsRect,belowObsRect;
-            tie(aboveObsRect,belowObsRect)=result.e;
-			
-            if(result.layer==1) //解决l1遇到的问题，改变l1起点
-			{
-                aboveObsRect=aboveObsRect.getOuterBorder(m1.spacing);
-                belowObsRect=belowObsRect.getOuterBorder(m1.spacing);
-				//fix:求新的p1x、p1y
-			}
-            else //解决l2遇到的问题，改变l2终点
-			{
-                aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
-                belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
-				//fix:求新的p2x、p2y
-                line lastLine=allLine.back();
-                p1x=lastLine.endPosX;
-                p2x=lastLine.endPosY;
-			}
-			
-            GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
+            while(1) //循环尝试
+            {
+                if(result.layer==2) //l2遇到问题就把没问题的线先搞进去
+                {
+                    for(line l : alreadyLine)
+                        allLine.push_back(l);
+                }
+                alreadyLine.clear(); //清空，准备在新的起终点布线
+
+                //获取上下无法绕过的矩形
+                rect aboveObsRect,belowObsRect;
+                tie(aboveObsRect,belowObsRect)=result.e;
+
+                if(result.layer==1) //解决l1遇到的问题，改变l1起点
+                {
+                    aboveObsRect=aboveObsRect.getOuterBorder(m1.spacing);
+                    belowObsRect=belowObsRect.getOuterBorder(m1.spacing);
+                    //fix:求新的p1x、p1y
+                }
+                else //解决l2遇到的问题，改变l2终点
+                {
+                    aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
+                    belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
+                    //fix:求新的p2x、p2y
+                    line lastLine=allLine.back();
+                    p1x=lastLine.endPosX;
+                    p2x=lastLine.endPosY;
+                }
+
+                GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
+
+                //检测这个结果是否可以了
+                if(result.layer==-1) //无问题
+                {
+                    for(line l : alreadyLine)
+                        allLine.push_back(l);
+                    break;
+                }
+            }
         }
     }
 
