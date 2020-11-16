@@ -11,8 +11,9 @@ namespace LEF
 struct via
 {
     int m1;
-    int m2;
-    float spacing;
+    rect viaRect;
+    rect m1Rect;
+    rect m2Rect;
 };
 
 struct metal

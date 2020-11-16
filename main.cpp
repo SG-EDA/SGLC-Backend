@@ -21,7 +21,7 @@ int main()
     defParser p1(def);
     lefParser p2(lef,1,8);
     auto c=p2.getCell("CELL2");
-    auto v=p2.getVia(6,7);
+    auto v=p2.getVia(6); //fix:还没测试
     auto m=p2.getMetal(6);
     return 0;
 }

@@ -16,7 +16,7 @@ public:
 
     bool isNull() const { return p1.x==0 && p1.y==0 && p2.x==0 && p2.y==0; }
 
-    static rect getRect(QString stri, float w, float h)
+    static rect getRect(QString stri, float w=-1, float h=-1, bool isOrigin=false)
     {
         QStringList strList=help::splitSpace(stri);
         for(int i=0;i<strList.length();i++)
@@ -28,8 +28,8 @@ public:
                 y1=strList[i+2].toFloat();
                 x2=strList[i+3].toFloat();
                 y2=strList[i+4].toFloat();
-                pos p1(x1,y1,w,h); //左下原点
-                pos p2(x2,y2,w,h);
+                pos p1(x1,y1,w,h,isOrigin);
+                pos p2(x2,y2,w,h,isOrigin);
                 rect r(p1,p2);
                 return r;
             }

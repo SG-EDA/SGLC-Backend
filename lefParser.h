@@ -119,24 +119,29 @@ public:
         return this->allMetal[ID-minMetalID];
     }
 
-    LEF::via getVia(int m1,int m2)
+    LEF::via getVia(int m1)
     {
-        QString viaName="VIA"+QString::number(m1)+QString::number(m2);
+        QString viaName="via"+QString::number(m1);
+        QString m1Name="METAL"+QString::number(m1);
+        QString m2Name="METAL"+QString::number(m1+1);
         LEF::via v;
         bool findVia=false;
         for(int i=0;i<codeList.length();i++)
         {
             QString stri=codeList[i];
-            if(findVia==false && stri=="LAYER "+viaName) //找到via位置，进状态
+            if(findVia==false && stri=="VIA "+viaName+" DEFAULT") //找到via位置，进状态
             {
                 v.m1=m1;
-                v.m2=m2;
                 findVia=true;
             }
             else if(findVia)
             {
-                if(stri.indexOf("SPACING")!=-1)
-                    v.spacing=help::getLastElm(stri,"SPACING").toFloat();
+                if(stri.indexOf("LAYER "+viaName)!=-1)
+                    v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
+                else if(stri.indexOf("LAYER "+m1Name)!=-1)
+                    v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
+                else if(stri.indexOf("LAYER "+m2Name)!=-1)
+                    v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
                 else if(stri=="END "+viaName)
                     break;
             }
