@@ -83,7 +83,7 @@ private:
             realM2=lp.getMetal(m1.ID-1);
         else
             realM2=lp.getMetal(m1.ID+1);
-        //生成line矩形 l1 l2（孔暂不生成，最后调？）
+        //生成line矩形 l1 l2（孔在下一步生成）
         list<line> alreadyLine;
         GENRET result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
         if(result.layer==-1) //无问题
@@ -132,6 +132,11 @@ private:
                     break;
                 }
             }
+        }
+        //生成孔
+        for(int i=1;i<allLine.size();i++)
+        {
+            //每个和它前一个连
         }
     }
 
