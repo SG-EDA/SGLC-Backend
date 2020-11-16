@@ -137,6 +137,11 @@ private:
         for(int i=1;i<allLine.size();i++)
         {
             //每个和它前一个连
+			line &l1=allLine[i-1];
+			line &l2=allLine[i];
+			float x,y;
+			tie(x,y)=l1.getCrossCener(l2);
+			//fix:找到对应层的via，把它放置到这个位置
         }
     }
 
