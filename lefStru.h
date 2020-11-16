@@ -158,4 +158,11 @@ public:
     {
         return "( "+QString::number(int(this->x2))+" "+QString::number(int(this->y2))+" )";
     }
+	
+	tuple<float,float> getCrossCenter(line &l)
+	{
+		float x,y;
+		//fix:将x、y设为交叉区域中点坐标
+		return make_tuple(x,y);
+	}
 };
