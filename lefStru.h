@@ -20,7 +20,7 @@ struct metal
 {
     int ID;
     float minWidth;
-    const float maxNeedWidth=0.6;
+    float maxNeedWidth=0.6;
     float spacing;
     float area=-1; //-1为无约束
     bool vertical; //false为horizontal

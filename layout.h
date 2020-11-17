@@ -61,7 +61,7 @@ private:
             return result;
     }
 
-    void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine)
+    void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
     {
         //查找二者最近的两个rect
         pinRect *r1;
@@ -123,7 +123,7 @@ private:
                         }
                         else
                         {
-                            //fix:上下都不行，换层或换pin
+                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
                         }
                     }
                     else    //方向水平
@@ -138,7 +138,7 @@ private:
                         }
                         else
                         {
-                            //fix:上下都不行，换层或换pin
+                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
                         }
                     }
                 }
@@ -159,7 +159,7 @@ private:
                         }
                         else
                         {
-                            //fix:上下都不行，换层或换pin
+                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
                         }
                     }
                     else    //方向水平
@@ -174,7 +174,7 @@ private:
                         }
                         else
                         {
-                            //fix:上下都不行，换层或换pin
+                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
                         }
                     }
                     //根据之前的布线重定义起点
@@ -202,7 +202,15 @@ private:
 			line &l2=allLine[i];
 			float x,y;
             tie(x,y)=l1.getCrossCenter(l2);
-			//fix:找到对应层的via，把它放置到这个位置
+            //找到对应层的via
+            LEF::via v;
+            if(l1.metal.ID<l2.metal.ID)
+                v=lp.getVia(l1.metal.ID);
+            else
+                v=lp.getVia(l2.metal.ID);
+            //fix:因为目前不考虑两根导线跨多层，所以两个导线必然是相邻层，直接getVia就行
+            //把这via放置到xy
+            allVia.push_back(via(x,y,v,this->lp));
         }
     }
 
@@ -350,12 +358,14 @@ public:
         for(DEF::net &n : dp.allNet)
         {
             vector<line> allLine;
+            vector<via> allVia;
             auto LEFallPin=this->sortAllPin(n.allPin);
             for(int i=1;i<LEFallPin.size();i++)
             {
-                this->connect(LEFallPin[i-1],LEFallPin[i],allLine);
+                this->connect(LEFallPin[i-1],LEFallPin[i],allLine,allVia);
             }
             this->allNetLine.push_back(allLine);
+            this->allNetVia.push_back(allVia);
         }
     }
 };

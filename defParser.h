@@ -18,7 +18,7 @@ private:
         return -1;
     }
 
-    int parsePins(int i) //fix:
+    int parsePins(int i) //fix:现在没有做向外部pin连线的
     {
         for(int j=i;j<this->codeList.length();j++)
         {
