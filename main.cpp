@@ -1,6 +1,5 @@
 #include <iostream>
-#include "defParser.h"
-#include "lefParser.h"
+#include "codegen.h"
 #include <QFile>
 #include <QTextStream>
 
@@ -20,8 +19,11 @@ int main()
     QString lef=ReadTXT("D:/sample.lef");
     defParser p1(def);
     lefParser p2(lef,1,8);
-    auto c=p2.getCell("CELL2");
-    auto v=p2.getVia(6); //fix:还没测试
-    auto m=p2.getMetal(6);
+    /*auto c=p2.getCell("CELL2");
+    auto v=p2.getVia(6);
+    auto m=p2.getMetal(6);*/
+    layout l(p1,p2);
+    codegen cg(l);
+    QString result=cg.genNETS();
     return 0;
 }

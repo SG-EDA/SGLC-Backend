@@ -351,6 +351,7 @@ public:
             lefC.setToLayout(c.x,c.y,c.dire);
             this->allCell.push_back(lefC);
         }
+        this->connectAllNet();
     }
 
     void connectAllNet()
