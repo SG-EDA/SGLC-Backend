@@ -19,7 +19,8 @@ struct via
 struct metal
 {
     int ID;
-    float width;
+    float minWidth;
+    const float maxNeedWidth=0.6;
     float spacing;
     float area=-1; //-1为无约束
     bool vertical; //false为horizontal
@@ -78,15 +79,27 @@ public:
     LEF::metal metal;
     float endPosX;
     float endPosY;
+    float width;
 
     line(){}
-    line(float x1,float y1,float x2,float y2,LEF::metal metal, float endPosX, float endPosY) :
-        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal), endPosX(endPosX), endPosY(endPosY) {}
+    line(float x1,float y1,float x2,float y2,LEF::metal metal, float endPosX, float endPosY,float width=-1) :
+        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal), endPosX(endPosX), endPosY(endPosY)
+    {
+        if(width==-1)
+            this->width=metal.minWidth;
+        else
+            this->width=width;
+    }
 
-    line(float x,float y,float y2,LEF::metal metal,float endPosX, float endPosY,bool isVertical=true) :
+    line(float x,float y,float y2,LEF::metal metal,float endPosX, float endPosY,bool isVertical=true,float width=-1) :
         metal(metal), endPosX(endPosX), endPosY(endPosY)
     {
-        float w=metal.width/2;
+        if(width==-1)
+            this->width=metal.minWidth;
+        else
+            this->width=width;
+
+        float w=this->width/2;
         if(isVertical)
         {
             this->x1=x-w; //x是左边的
@@ -120,7 +133,7 @@ public:
             {
                 for(pinRect r : p.allRect)
                 {
-                    if(r.isIntersect(this->toRect(),this->metal.spacing,this->metal.width))
+                    if(r.isIntersect(this->toRect(),this->metal.spacing,this->width))
                     {
                         if(r.isLowerLeft(result))
                             result=r;
@@ -135,7 +148,7 @@ public:
             vector<rect> &allRect=c.o[metalName];
             for(rect r : allRect)
             {
-                if(r.isIntersect(this->toRect(),this->metal.spacing,this->metal.width))
+                if(r.isIntersect(this->toRect(),this->metal.spacing,this->width))
                 {
                     if(r.isLowerLeft(result))
                         result=r;

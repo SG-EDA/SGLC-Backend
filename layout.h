@@ -46,7 +46,7 @@ private:
                 if(l.metal==li.metal)
                 {
                     rect lir=li.toRect();
-                    if(lr.isIntersect(lir,l.metal.spacing,l.metal.width))
+                    if(lr.isIntersect(lir,l.metal.spacing,l.width))
                     {
                         if(lir.isLowerLeft(result)) //新找到的在左下
                             result=lir;
@@ -113,13 +113,13 @@ private:
                     //求新的p1x、p1y
                     if(m1.vertical == true) //判断方向竖直
                     {
-                        if(aboveObsRect.p1.x > (r1->p1.x+m1.width))  //左面的块x1在pin范围内
+                        if(aboveObsRect.p1.x > (r1->p1.x+m1.maxNeedWidth))  //左面的块x1在pin范围内
                         {
-                            p1x = aboveObsRect.p1.x-(m1.width/2);
+                            p1x = aboveObsRect.p1.x-(m1.maxNeedWidth/2);
                         }
-                        else if(belowObsRect.p2.x < (r1->p2.x-m1.width))    //下面的块x2在pin范围内
+                        else if(belowObsRect.p2.x < (r1->p2.x-m1.maxNeedWidth))    //下面的块x2在pin范围内
                         {
-                            p1x = belowObsRect.p2.x+(m1.width/2);
+                            p1x = belowObsRect.p2.x+(m1.maxNeedWidth/2);
                         }
                         else
                         {
@@ -128,13 +128,13 @@ private:
                     }
                     else    //方向水平
                     {
-                        if(aboveObsRect.p2.y < (r1->p2.y-m1.width))  //上面的块y2在pin范围内
+                        if(aboveObsRect.p2.y < (r1->p2.y-m1.maxNeedWidth))  //上面的块y2在pin范围内
                         {
-                            p1y = aboveObsRect.p2.y+(m1.width/2);
+                            p1y = aboveObsRect.p2.y+(m1.maxNeedWidth/2);
                         }
-                        else if(belowObsRect.p1.y > (r1->p1.y+m1.width))    //下面的块y1在pin范围内
+                        else if(belowObsRect.p1.y > (r1->p1.y+m1.maxNeedWidth))    //下面的块y1在pin范围内
                         {
-                            p1y = belowObsRect.p1.y-(m1.width/2);
+                            p1y = belowObsRect.p1.y-(m1.maxNeedWidth/2);
                         }
                         else
                         {
@@ -149,13 +149,13 @@ private:
                     //求新的p2x、p2y
                     if(realM2.vertical == true) //判断方向竖直
                     {
-                        if(aboveObsRect.p1.x > (r2->p1.x+realM2.width))  //左面的块x1在pin范围内
+                        if(aboveObsRect.p1.x > (r2->p1.x+realM2.maxNeedWidth))  //左面的块x1在pin范围内
                         {
-                            p2x = aboveObsRect.p1.x-(realM2.width/2);
+                            p2x = aboveObsRect.p1.x-(realM2.maxNeedWidth/2);
                         }
-                        else if(belowObsRect.p2.x < (r2->p2.x-realM2.width))    //下面的块x2在pin范围内
+                        else if(belowObsRect.p2.x < (r2->p2.x-realM2.maxNeedWidth))    //下面的块x2在pin范围内
                         {
-                            p2x = belowObsRect.p2.x+(realM2.width/2);
+                            p2x = belowObsRect.p2.x+(realM2.maxNeedWidth/2);
                         }
                         else
                         {
@@ -164,13 +164,13 @@ private:
                     }
                     else    //方向水平
                     {
-                        if(aboveObsRect.p2.y < (r2->p2.y-realM2.width))  //上面的块y2在pin范围内
+                        if(aboveObsRect.p2.y < (r2->p2.y-realM2.maxNeedWidth))  //上面的块y2在pin范围内
                         {
-                            p2y = aboveObsRect.p2.y+(realM2.width/2);
+                            p2y = aboveObsRect.p2.y+(realM2.maxNeedWidth/2);
                         }
-                        else if(belowObsRect.p1.y > (r2->p1.y+realM2.width))    //下面的块y1在pin范围内
+                        else if(belowObsRect.p1.y > (r2->p1.y+realM2.maxNeedWidth))    //下面的块y1在pin范围内
                         {
-                            p2y = belowObsRect.p1.y-(realM2.width/2);
+                            p2y = belowObsRect.p1.y-(realM2.maxNeedWidth/2);
                         }
                         else
                         {
