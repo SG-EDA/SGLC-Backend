@@ -83,7 +83,7 @@ public:
     line(float x1,float y1,float x2,float y2,LEF::metal metal, float endPosX, float endPosY) :
         x1(x1), y1(y1), x2(x2), y2(y2), metal(metal), endPosX(endPosX), endPosY(endPosY) {}
 
-    line(float x,float y,float y2,float endPosX, float endPosY,LEF::metal metal,bool isVertical=true) :
+    line(float x,float y,float y2,LEF::metal metal,float endPosX, float endPosY,bool isVertical=true) :
         metal(metal), endPosX(endPosX), endPosY(endPosY)
     {
         float w=metal.width/2;
@@ -159,12 +159,41 @@ public:
         return "( "+QString::number(int(this->x2))+" "+QString::number(int(this->y2))+" )";
     }*/
 	
-	tuple<float,float> getCrossCenter(line &l)
-	{
-		float x,y;
-		//fix:将x、y设为交叉区域中点坐标
-		return make_tuple(x,y);
-	}
+    tuple<float,float> getCrossCenter(line &l)
+    {
+        float x,y;
+        //计算中心坐标
+        float this_center_x = (this->x1 + this->x2)/2;
+        float this_center_y = (this->y1 + this->y2)/2;
+        float l_center_x    = (l.x1     + l.x2    )/2;
+        float l_center_y    = (l.y1     + l.y2    )/2;
+        //中心的相对位置
+        float location_x = this_center_x - l_center_x;
+        float location_y = this_center_y - l_center_y;
+        //根据相对位置判断相交区域
+        if((location_x > 0) && (location_y > 0))    //this在右上
+        {
+            x = (l.x2 + this->x1)/2;
+            y = (l.y2 + this->y1)/2;
+        }
+        else if((location_x < 0) && (location_y > 0))   //在左上
+        {
+            x = (l.x1 + this->x2)/2;
+            y = (l.y2 + this->y1)/2;
+        }
+        else if((location_x > 0) && (location_y < 0))   //在右下
+        {
+            x = (l.x2 + this->x1)/2;
+            y = (l.y1 + this->y2)/2;
+        }
+        else   //在左下
+        {
+            x = (l.x1 + this->x2)/2;
+            y = (l.y1 + this->y2)/2;
+        }
+
+        return make_tuple(x,y);
+    }
 
     tuple<pos,pos> getMidLine()
     {

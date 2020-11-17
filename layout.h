@@ -93,7 +93,7 @@ private:
         }
         else 
         {
-            while(1) //循环尝试
+            while(1) //有问题（情况3、4）循环尝试
             {
                 if(result.layer==2) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
                 {
@@ -110,13 +110,74 @@ private:
                 {
                     aboveObsRect=aboveObsRect.getOuterBorder(m1.spacing);
                     belowObsRect=belowObsRect.getOuterBorder(m1.spacing);
-                    //fix:求新的p1x、p1y
+                    //求新的p1x、p1y
+                    if(m1.vertical == true) //判断方向竖直
+                    {
+                        if(aboveObsRect.p1.x > (r1->p1.x+m1.width))  //左面的块x1在pin范围内
+                        {
+                            p1x = aboveObsRect.p1.x-(m1.width/2);
+                        }
+                        else if(belowObsRect.p2.x < (r1->p2.x-m1.width))    //下面的块x2在pin范围内
+                        {
+                            p1x = belowObsRect.p2.x+(m1.width/2);
+                        }
+                        else
+                        {
+                            //fix:上下都不行，换层或换pin
+                        }
+                    }
+                    else    //方向水平
+                    {
+                        if(aboveObsRect.p2.y < (r1->p2.y-m1.width))  //上面的块y2在pin范围内
+                        {
+                            p1y = aboveObsRect.p2.y+(m1.width/2);
+                        }
+                        else if(belowObsRect.p1.y > (r1->p1.y+m1.width))    //下面的块y1在pin范围内
+                        {
+                            p1y = belowObsRect.p1.y-(m1.width/2);
+                        }
+                        else
+                        {
+                            //fix:上下都不行，换层或换pin
+                        }
+                    }
                 }
                 else //解决l2遇到的问题，改变l2终点
                 {
                     aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
                     belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
-                    //fix:求新的p2x、p2y
+                    //求新的p2x、p2y
+                    if(realM2.vertical == true) //判断方向竖直
+                    {
+                        if(aboveObsRect.p1.x > (r2->p1.x+realM2.width))  //左面的块x1在pin范围内
+                        {
+                            p2x = aboveObsRect.p1.x-(realM2.width/2);
+                        }
+                        else if(belowObsRect.p2.x < (r2->p2.x-realM2.width))    //下面的块x2在pin范围内
+                        {
+                            p2x = belowObsRect.p2.x+(realM2.width/2);
+                        }
+                        else
+                        {
+                            //fix:上下都不行，换层或换pin
+                        }
+                    }
+                    else    //方向水平
+                    {
+                        if(aboveObsRect.p2.y < (r2->p2.y-realM2.width))  //上面的块y2在pin范围内
+                        {
+                            p2y = aboveObsRect.p2.y+(realM2.width/2);
+                        }
+                        else if(belowObsRect.p1.y > (r2->p1.y+realM2.width))    //下面的块y1在pin范围内
+                        {
+                            p2y = belowObsRect.p1.y-(realM2.width/2);
+                        }
+                        else
+                        {
+                            //fix:上下都不行，换层或换pin
+                        }
+                    }
+                    //根据之前的布线重定义起点
                     line lastLine=allLine.back();
                     p1x=lastLine.endPosX;
                     p2x=lastLine.endPosY;
@@ -140,7 +201,7 @@ private:
 			line &l1=allLine[i-1];
 			line &l2=allLine[i];
 			float x,y;
-			tie(x,y)=l1.getCrossCener(l2);
+            tie(x,y)=l1.getCrossCenter(l2);
 			//fix:找到对应层的via，把它放置到这个位置
         }
     }
