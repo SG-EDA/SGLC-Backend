@@ -33,30 +33,30 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
         {
             if(m1.vertical == true)
             {
-                newLine.push_back(line(l.x1                      , l.y1        , border.p1.x , l.y2                      , realM2));
-                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2        , border.p1.x , border.p2.y               , m1    ));
-                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y , l.x2        , (border.p2.y+(l.y2-l.y1)) , realM2));
+                newLine.push_back(line(l.x1                        , l.y1               , (border.p1.x-(l.y2-l.y1)/2) , l.y2                         , realM2 , (border.p1.x-(l.y2-l.y1)/2) , (l.y1 + l.y2)/2              ));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1))   , ((l.y2+l.y1)/2)    , border.p1.x                 , (border.p2.y+(l.y2-l.y1)/2) , m1     , (border.p1.x-(l.y2-l.y1)/2) , (border.p2.y+(l.y2-l.y1)/2) ));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1)/2) , border.p2.y        , l.x2                        , (border.p2.y+(l.y2-l.y1))    , realM2 , l.x2                        , (border.p2.y+(l.y2-l.y1)/2)  ));
             }
             else
             {
-                newLine.push_back(line(l.x1                      , l.y1        , border.p1.x , l.y2                      , m1    ));
-                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , l.y2        , border.p1.x , border.p2.y               , realM2));
-                newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p2.y , l.x2        , (border.p2.y+(l.y2-l.y1)) , m1    ));
+                newLine.push_back(line(l.x1                        , l.y1               , (border.p1.x-(l.y2-l.y1)/2) , l.y2                         , realM2 , (border.p1.x-(l.y2-l.y1)/2) , (l.y1 + l.y2)/2              ));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1))   , ((l.y2+l.y1)/2)    , border.p1.x                 , (border.p2.y+(l.y2-l.y1)/2) , m1     , (border.p1.x-(l.y2-l.y1)/2) , (border.p2.y+(l.y2-l.y1)/2) ));
+                newLine.push_back(line((border.p1.x-(l.y2-l.y1)/2) , border.p2.y        , l.x2                        , (border.p2.y+(l.y2-l.y1))    , realM2 , l.x2                        , (border.p2.y+(l.y2-l.y1)/2)  ));
             }
         }
         else //纵向
         {
             if(m1.vertical == true)
             {
-                newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y , m1    ));
-                newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y , realM2));
-                newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		 , m1    ));
+                newLine.push_back(line(l.x1                        , l.y1                        , l.x2            , (border.p1.y-(l.x2-l.x1)/2) , m1     , (l.x1 + l.x2)/2             , (border.p1.y-(l.x2-l.x1)/2) ));
+                newLine.push_back(line((border.p1.x-(l.x2-l.x1)/2) , (border.p1.y-(l.x2-l.x1))   , (l.x1 + l.x2)/2 , border.p1.y                 , realM2 , (border.p1.x-(l.x2-l.x1)/2) , (border.p1.y-(l.x2-l.x1)/2) ));
+                newLine.push_back(line((border.p1.x-(l.x2-l.x1))   , (border.p1.y-(l.x2-l.x1)/2) , border.p1.x     , l.y2 		                 , m1     , (border.p1.x-(l.x2-l.x1)/2) , l.y2                        ));
             }
             else
             {
-                newLine.push_back(line(l.x1                      , l.y1                      , l.x2        , border.p1.y , realM2));
-                newLine.push_back(line(border.p1.x               , (border.p1.y-(l.x2-l.x1)) , l.x1        , border.p1.y , m1    ));
-                newLine.push_back(line((border.p1.x-(l.x2-l.x1)) , (border.p1.y-(l.x2-l.x1)) , border.p1.x , l.y2 		 , realM2));
+                newLine.push_back(line(l.x1                        , l.y1                        , l.x2            , (border.p1.y-(l.x2-l.x1)/2) , m1     , (l.x1 + l.x2)/2             , (border.p1.y-(l.x2-l.x1)/2) ));
+                newLine.push_back(line((border.p1.x-(l.x2-l.x1)/2) , (border.p1.y-(l.x2-l.x1))   , (l.x1 + l.x2)/2 , border.p1.y                 , realM2 , (border.p1.x-(l.x2-l.x1)/2) , (border.p1.y-(l.x2-l.x1)/2) ));
+                newLine.push_back(line((border.p1.x-(l.x2-l.x1))   , (border.p1.y-(l.x2-l.x1)/2) , border.p1.x     , l.y2 		                 , m1     , (border.p1.x-(l.x2-l.x1)/2) , l.y2                        ));
             }
         }
         //检查1是否修复成功
@@ -71,30 +71,30 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
             {
                 if(m1.vertical == true)
                 {
-                    newLine.push_back(line(l.x1                      , l.y1                      , border.p1.x , l.y2        , realM2));//画到障碍矩形的x1
-                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1        , m1    ));//绕线宽度和旧导线保持一致
-                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	       , border.p1.y , realM2));//y累加
+                    newLine.push_back(line(l.x1                        , l.y1                        , (border.p1.x-(l.y2-l.y1)/2) , l.y2            , realM2 , (border.p1.x-(l.y2-l.y1)/2) , (l.y1 + l.y2)/2             ));//画到障碍矩形的x1
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1))   , (border.p1.y-(l.y2-l.y1)/2) , border.p1.x                 , (l.y1 + l.y2)/2 , m1     , (border.p1.x-(l.y2-l.y1)/2) , (border.p1.y-(l.y2-l.y1)/2) ));//绕线宽度和旧导线保持一致
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)/2) , (border.p1.y-(l.y2-l.y1))   , l.x2	                       , border.p1.y     , realM2 , l.x2                        , (border.p1.y-(l.y2-l.y1)/2) ));//y累加
                 }
                 else
                 {
-                    newLine.push_back(line(l.x1                      , l.y1                      , border.p1.x , l.y2        , m1    ));
-                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , border.p1.y               , border.p1.x , l.y1        , realM2));
-                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)) , (border.p1.y-(l.y2-l.y1)) , l.x2	       , border.p1.y , m1    ));
+                    newLine.push_back(line(l.x1                        , l.y1                        , (border.p1.x-(l.y2-l.y1)/2) , l.y2            , realM2 , (border.p1.x-(l.y2-l.y1)/2) , (l.y1 + l.y2)/2             ));
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1))   , (border.p1.y-(l.y2-l.y1)/2) , border.p1.x                 , (l.y1 + l.y2)/2 , m1     , (border.p1.x-(l.y2-l.y1)/2) , (border.p1.y-(l.y2-l.y1)/2) ));
+                    newLine.push_back(line((border.p1.x-(l.y2-l.y1)/2) , (border.p1.y-(l.y2-l.y1))   , l.x2	                       , border.p1.y     , realM2 , l.x2                        , (border.p1.y-(l.y2-l.y1)/2) ));
                 }
             }
             else //纵向
             {
                 if(m1.vertical == true)
                 {
-                    newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , m1    ));
-                    newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , realM2));
-                    newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , m1    ));
+                    newLine.push_back(line(l.x1            , l.y1                        , l.x2                         , (border.p1.y-(l.x2-l.x1)/2) , m1     , (l.x1 + l.x2)/2             , (border.p1.y-(l.x2-l.x1)/2) ));
+                    newLine.push_back(line((l.x1 + l.x2)/2 , (border.p1.y-(l.x2-l.x1))   , (border.p2.x +(l.x2-l.x1)/2) , border.p1.y                 , realM2 , (border.p2.x+(l.x2-l.x1)/2) , (border.p1.y-(l.x2-l.x1)/2) ));
+                    newLine.push_back(line(border.p2.x     , (border.p1.y-(l.x2-l.x1)/2) , (border.p2.x+(l.x2-l.x1))    , l.y2                        , m1     , (border.p2.x+(l.x2-l.x1)/2) , l.y2                        ));
                 }
                 else
                 {
-                    newLine.push_back(line(l.x1        , l.y1                      , l.x2                      , border.p1.y , realM2));
-                    newLine.push_back(line(l.x2        , (border.p1.y-(l.x2-l.x1)) , border.p2.x               , border.p1.y , m1    ));
-                    newLine.push_back(line(border.p2.x , (border.p1.y-(l.x2-l.x1)) , (border.p2.x+(l.x2-l.x1)) , l.y2        , realM2));
+                    newLine.push_back(line(l.x1            , l.y1                        , l.x2                         , (border.p1.y-(l.x2-l.x1)/2) , m1     , (l.x1 + l.x2)/2             , (border.p1.y-(l.x2-l.x1)/2) ));
+                    newLine.push_back(line((l.x1 + l.x2)/2 , (border.p1.y-(l.x2-l.x1))   , (border.p2.x +(l.x2-l.x1)/2) , border.p1.y                 , realM2 , (border.p2.x+(l.x2-l.x1)/2) , (border.p1.y-(l.x2-l.x1)/2) ));
+                    newLine.push_back(line(border.p2.x     , (border.p1.y-(l.x2-l.x1)/2) , (border.p2.x+(l.x2-l.x1))    , l.y2                        , m1     , (border.p2.x+(l.x2-l.x1)/2) , l.y2                        ));
                 }
             }
             auto belowObsRect=checkNewLine(newLine);
