@@ -149,7 +149,7 @@ public:
             return result;
     }
 
-    QString getPos1()
+    /*QString getPos1()
     {
         return "( "+QString::number(int(this->x1))+" "+QString::number(int(this->y1))+" )";
     }
@@ -157,7 +157,7 @@ public:
     QString getPos2()
     {
         return "( "+QString::number(int(this->x2))+" "+QString::number(int(this->y2))+" )";
-    }
+    }*/
 	
 	tuple<float,float> getCrossCenter(line &l)
 	{
@@ -165,4 +165,20 @@ public:
 		//fix:将x、y设为交叉区域中点坐标
 		return make_tuple(x,y);
 	}
+
+    tuple<pos,pos> getMidLine()
+    {
+        float dx=this->x2-this->x1;
+        float dy=this->y2-this->y1;
+        if(dx<dy)
+        {
+            float xMid=(x2-x1)/2;
+            return make_tuple(pos(xMid,this->y1),pos(xMid,this->y2));
+        }
+        else
+        {
+            float yMid=(y2-y1)/2;
+            return make_tuple(pos(this->x1,yMid),pos(this->x2,yMid));
+        }
+    }
 };

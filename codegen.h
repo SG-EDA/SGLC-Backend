@@ -39,7 +39,10 @@ private:
                     else
                         first=false;
 
-                    result+=l.metal.getName()+" "+l.getPos1()+" "+l.getPos2()+"\n";
+                    pos p1,p2;
+                    tie(p1,p2)=l.getMidLine();
+
+                    result+=l.metal.getName()+" "+p1.toStr()+" "+p2.toStr()+"\n";
                 }
                 break;
             }

@@ -65,6 +65,7 @@ public:
     pos(float x,float y,float w,float h,bool isOrigin=false): //如果不做翻转，w和h可以不要（随便传个-1就行）
         x(x),y(y),w(w),h(h),isOrigin(isOrigin){}
     pos(float x,float y) : x(x), y(y), isOrigin(false), inLayout(true) {}
+    pos(){} //洞
 
     void setDire(QString dire)
     {
@@ -94,4 +95,9 @@ public:
 
     bool getIsOrigin() { return this->isOrigin; }
     bool getInLayout() { return this->inLayout; }
+
+    QString toStr()
+    {
+        return "( "+QString::number(int(this->x))+" "+QString::number(int(this->y))+" )";
+    }
 };
