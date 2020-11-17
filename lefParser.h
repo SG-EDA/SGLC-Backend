@@ -136,13 +136,13 @@ public:
             }
             else if(findVia)
             {
-                if(stri.indexOf("LAYER "+viaName)!=-1)
+                if(stri.indexOf("LAYER VIA"+QString::number(m1))!=-1)
                     v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
                 else if(stri.indexOf("LAYER "+m1Name)!=-1)
-                    v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
+                    v.m1Rect=rect::getRect(codeList[i+1],-1,-1,true);
                 else if(stri.indexOf("LAYER "+m2Name)!=-1)
-                    v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
-                else if(stri=="END "+viaName)
+                    v.m2Rect=rect::getRect(codeList[i+1],-1,-1,true);
+                else if(stri.indexOf("END "+viaName)!=-1)
                     break;
             }
         }
@@ -180,7 +180,7 @@ public:
                     i=this->getPin(i,c);
                 else if(stri.indexOf("OBS")!=-1)
                     i=this->getOBS(i+1,c);
-                else if(stri=="END "+cellName)
+                else if(stri.indexOf("END "+cellName)!=-1)
                     break;
             }
         }
