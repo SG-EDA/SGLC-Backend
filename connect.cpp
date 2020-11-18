@@ -1,4 +1,6 @@
 #include "layout.h"
+#include <iostream>
+using namespace std;
 
 tuple<float,float> minSwap(float a,float b)
 {
@@ -148,7 +150,8 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     if(!fixResult.has_value())
     {
         alreadyLine.push_back(l1); //确认无误添加
-        return this->genLine(l1.endPosX,l1.endPosY,p2x,p2y,m1,realM2,alreadyLine,layer+1);
+        cout<<l1.endPosX<<" "<<l1.endPosY<<" "<<p2x<<" "<<p2y<<endl;
+        return this->genLine(l1.endPosX,l1.endPosY,p2x,p2y,realM2,m1,alreadyLine,layer+1);
     }
     else
     {
@@ -157,7 +160,8 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
         pushAllLine(newLine); //1、2种情况，确认无误添加
         line lastLine=newLine.back();
         //连l2，此时l2起点变了（递归）
-        return this->genLine(lastLine.endPosX,lastLine.endPosY,p2x,p2y,m1,realM2,alreadyLine,layer+1);
+        cout<<lastLine.endPosX<<" "<<lastLine.endPosY<<" "<<p2x<<" "<<p2y<<endl;
+        return this->genLine(lastLine.endPosX,lastLine.endPosY,p2x,p2y,realM2,m1,alreadyLine,layer+1);
     }
 
     }
