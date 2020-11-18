@@ -130,12 +130,12 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     if(m1.vertical == true)
     {
         tie(a,b)=minSwap(p1y,p2y);
-        l1 = line(p1x,a,b,m1,p1x,p2y,true);
+        l1 = line(p1x,a,b,m1,p1x,p1y,p1x,p2y,true);
     }
     else
     {
         tie(a,b)=minSwap(p1x,p2x);
-        l1 = line(p1y,a,b,m1,p2x,p1y,false);
+        l1 = line(p1y,a,b,m1,p1x,p1y,p2x,p1y,false);
     }
 
     auto pushAllLine=[&alreadyLine](list<line> &allL) {

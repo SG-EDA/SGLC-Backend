@@ -77,13 +77,17 @@ public:
     float x2;
     float y2;
     LEF::metal metal;
+    float startPosX;
+    float startPosY;
     float endPosX;
     float endPosY;
     float width;
 
     line(){}
-    line(float x1,float y1,float x2,float y2,LEF::metal metal, float endPosX, float endPosY,float width=-1) :
-        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal), endPosX(endPosX), endPosY(endPosY)
+    line(float x1,float y1,float x2,float y2,LEF::metal metal,
+         float startPosX, float startPosY, float endPosX, float endPosY,float width=-1) :
+        x1(x1), y1(y1), x2(x2), y2(y2), metal(metal),
+        startPosX(startPosX), startPosY(startPosY), endPosX(endPosX), endPosY(endPosY)
     {
         if(width==-1)
             this->width=metal.minWidth;
@@ -91,8 +95,9 @@ public:
             this->width=width;
     }
 
-    line(float x,float y,float y2,LEF::metal metal,float endPosX, float endPosY,bool isVertical=true,float width=-1) :
-        metal(metal), endPosX(endPosX), endPosY(endPosY)
+    line(float x,float y,float y2,LEF::metal metal,
+         float startPosX, float startPosY, float endPosX, float endPosY,bool isVertical=true,float width=-1) :
+        metal(metal), startPosX(startPosX), startPosY(startPosY), endPosX(endPosX), endPosY(endPosY)
     {
         if(width==-1)
             this->width=metal.minWidth;
