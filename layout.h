@@ -1,7 +1,7 @@
 #pragma once
 #include "lefParser.h"
 #include "defParser.h"
-#include <queue>
+#include <list>
 
 struct GENRET
 {
