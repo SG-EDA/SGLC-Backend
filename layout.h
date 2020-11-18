@@ -214,19 +214,20 @@ private:
         }
     }
 
-    LEF::pin& findLEFPin(QString instName, QString pinName)
+    LEF::pin findLEFPin(QString instName, QString pinName)
     {
         for(LEF::cell &c : this->allCell)
         {
             if(c.instName==instName)
             {
-                for(LEF::pin &p : c.allPin)
+                for(LEF::pin p : c.allPin)
                 {
                     if(p.name==pinName)
                         return p;
                 }
             }
         }
+        throw string("LEF Pin not Found");
     }
 
     static tuple<pinRect*,pinRect*,float> getPinDist(LEF::pin &p1, LEF::pin &p2)
@@ -295,8 +296,11 @@ private:
     vector<LEF::pin> toLEFPinVec(const vector<DEF::pin> &allPin)
     {
         vector<LEF::pin> result;
-        for(auto i : allPin)
-            result.push_back(this->findLEFPin(i.instName,i.pinName));
+        for(DEF::pin i : allPin)
+        {
+            LEF::pin p=this->findLEFPin(i.instName,i.pinName);
+            result.push_back(p);
+        }
         return result;
     }
 
@@ -360,6 +364,10 @@ public:
         {
             vector<line> allLine;
             vector<via> allVia;
+
+            if(n.allPin.size()<=1) //和边界pin连的这里不考虑
+                continue;
+
             auto LEFallPin=this->sortAllPin(n.allPin);
             for(int i=1;i<LEFallPin.size();i++)
             {

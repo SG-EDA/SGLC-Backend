@@ -119,7 +119,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
 GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
                            LEF::metal m1,LEF::metal realM2, list<line> &alreadyLine, int layer)
 {
-    if(p1x==p2x && p1y==p2y) //不需要下一根导线了，递归出口
+    if(abs(p1x-p2x)<0.001 && abs(p1y-p2y)<0.001) //不需要下一根导线了，递归出口
         return GENRET();
 
     //求第一条导线

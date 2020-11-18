@@ -44,8 +44,11 @@ private:
                     {
                         DEF::pin p;
                         p.instName=strList[i+1];
-                        p.pinName=strList[i+2];
-                        n.allPin.push_back(p);
+                        if(p.instName!="PIN")
+                        {
+                            p.pinName=strList[i+2];
+                            n.allPin.push_back(p);
+                        }
                     }
                 }
             }
