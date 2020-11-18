@@ -9,44 +9,25 @@ typedef vector<QString> QStringList;
 
 class QString
 {
-public:
-    string str;
-
-    QString(const string a) : str(a) {}
-    QString(const QString & a) : str(a.str) {}
-    QString(char c) : str(to_string(c)) {}
-    static QString number(int a) { return QString(to_string(a)); }
-
-    QString& operator= (const string& a)
+private:
+    QString _replace(const string& old_value, const string& new_value)
     {
-        this->str=a;
-        return *this;
+        while(true)
+        {
+            string::size_type pos(0);
+            if( (pos=str.find(old_value)) != string::npos )
+            {
+                str.replace(pos,old_value.length(),new_value);
+            }
+            else
+                break;
+        }
+        return str;
     }
 
-    QString& operator= (const QString& a)
+    QStringList _split(string qseperator)
     {
-        this->str=a.str;
-        return *this;
-    }
-
-    char operator[](unsigned int i)
-    {
-        return this->str[i];
-    }
-
-    bool find(const QString & a)
-    {
-        return this->str.find(a.str)!=this->str.npos;
-    }
-
-    float toFloat() { return atof(this->str.c_str()); }
-
-    operator string() { return this->str; }
-    QString operator +(const QString &a) { return this->str+a.str; }
-
-    QStringList split(QString qs, QString qseperator)
-    {
-        string s=qs;
+        string s=this->str;
         string seperator=qseperator;
 
         QStringList result;
@@ -85,4 +66,58 @@ public:
         }
         return result;
     }
+
+public:
+    string str;
+
+    QString() : str("") {}
+    QString(const string a) : str(a) {}
+    QString(const char* a) : str(a) {}
+    QString(const QString & a) : str(a.str) {}
+    QString(char c) : str(to_string(c)) {}
+    static QString number(int a) { return QString(to_string(a)); }
+
+    QString replace(const QString& old_value, const QString& new_value)
+    {
+        return this->_replace(old_value.str, new_value.str);
+    }
+
+    QString& operator= (const QString& a)
+    {
+        this->str=a.str;
+        return *this;
+    }
+
+    //bool operator== (const string& a) { return this->str==a; }
+    bool operator== (const QString& a) { return this->str==a.str; }
+    bool operator!= (const QString& a) { return this->str!=a.str; }
+
+    QString& operator+= (const QString& a)
+    {
+        this->str+=a.str;
+        return *this;
+    }
+
+    char operator[](unsigned int i)
+    {
+        return this->str[i];
+    }
+
+    bool find(const QString & a)
+    {
+        return this->str.find(a.str)!=this->str.npos;
+    }
+
+    float toFloat() { return atof(this->str.c_str()); }
+
+    operator string() { return this->str; }
+
+    QString operator+ (const QString &a) { return QString(this->str+a.str); }
+    //QString operator+ (const string &a) { return QString(this->str+a); }
+    friend QString operator+(const string& a, const QString& b) { return QString(a+b.str); }
+
+    unsigned int size() { return this->str.size(); }
+    QStringList split(QString qseperator) { this->_split(qseperator.str); }
+    int toInt() { return atoi(this->str.c_str()); }
+    QString mid(unsigned int sub) { return this->str.substr(sub); }
 };
