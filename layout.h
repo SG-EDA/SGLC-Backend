@@ -223,7 +223,7 @@ private:
                 minViaID=l2.metal.ID;
                 maxViaID=l1.metal.ID;
             }
-            //fix:如果第0个的层和pin的层不一样，还要在pin上打孔
+            //fix:如果第一根或最后一根导线的层和pin的层不一样，还要在pin上打孔
             //把这via放置到xy
             for(int i=minViaID;i<maxViaID;i++)
             {
@@ -384,14 +384,16 @@ public:
             vector<line> allLine;
             vector<via> allVia;
 
-            if(n.allPin.size()<=1) //和边界pin连的这里不考虑
-                continue;
-
-            auto LEFallPin=this->sortAllPin(n.allPin);
-            for(int i=1;i<LEFallPin.size();i++)
+            if(n.allPin.size()>1) //两个以上的才需要连
             {
-                this->connect(LEFallPin[i-1],LEFallPin[i],allLine,allVia);
+                auto LEFallPin=this->sortAllPin(n.allPin);
+                for(int i=1;i<LEFallPin.size();i++)
+                {
+                    this->connect(LEFallPin[i-1],LEFallPin[i],allLine,allVia);
+                }
             }
+
+            //所有net按下标都对应一对他俩
             this->allNetLine.push_back(allLine);
             this->allNetVia.push_back(allVia);
         }

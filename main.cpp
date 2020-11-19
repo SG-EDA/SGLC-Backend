@@ -13,6 +13,14 @@ QString ReadTXT(QString path)
     return text.readAll();
 }
 
+void WriteTXT(QString path, QString text)
+{
+   QFile f(path);
+   f.open(QFile::Text|QFile::Append);
+   QTextStream out(&f);
+   out<<text;
+}
+
 int main()
 {
     QString def=ReadTXT("D:/sample.def");
@@ -25,5 +33,6 @@ int main()
     layout l(p1,p2);
     codegen cg(l);
     QString result=cg.genNETS();
+    WriteTXT("D:/result.def",result);
     return 0;
 }

@@ -16,39 +16,42 @@ private:
             result+=stri+"\n";
             //向下探测有没有到结尾
             QString stri2=this->l.dp.codeList[i+1];
-            if(stri.indexOf("net")!=-1)
+            if(stri2.indexOf(";")!=-1) //fix:目前sample里暂时没有分号非单独一行的
             {
                 //到结尾了
-                result+="+ ROUTED ";
-                bool first=true;
-                //把allVia加上
-                for(via v : allVia)
+                if(!allLine.empty())
                 {
-                    if(!first)
-                        result+="NEW ";
-                    else
-                        first=false;
+                    result+="+ ROUTED ";
+                    bool first=true;
+                    //把allVia加上
+                    for(via v : allVia)
+                    {
+                        if(!first)
+                            result+="NEW ";
+                        else
+                            first=false;
 
-                    result=v.m.getName()+" "+v.getPos()+" "+v.getName()+"\n";
-                }
-                //把allLine加上
-                for(line l : allLine)
-                {
-                    if(!first)
-                        result+="NEW ";
-                    else
-                        first=false;
+                        result+=v.m.getName()+" "+v.getPos()+" "+v.getName()+"\n";
+                    }
+                    //把allLine加上
+                    for(line l : allLine)
+                    {
+                        if(!first)
+                            result+="NEW ";
+                        else
+                            first=false;
 
-                    pos p1,p2;
-                    tie(p1,p2)=l.getMidLine();
+                        pos p1,p2;
+                        tie(p1,p2)=l.getMidLine();
 
-                    result+=l.metal.getName()+" "+p1.toStr()+" "+p2.toStr()+"\n";
+                        result+=l.metal.getName()+" "+p1.toStr()+" "+p2.toStr()+"\n";
+                    }
                 }
                 break;
             }
         }
         result+=";\n";
-        return i;
+        return i+1; //跳过分号那行到下一个net
     }
 
 public:
@@ -82,7 +85,10 @@ public:
         {
             QString stri=this->l.dp.codeList[i];
             if(stri.indexOf("NETS")!=-1)
+            {
+                result+=stri+"\n";
                 findNet=true;
+            }
 
             if(findNet)
             {
@@ -100,6 +106,6 @@ public:
                 }
             }
         }
-        return result;
+        throw string("NET cannot found");
     }
 };
