@@ -6,6 +6,7 @@
 class lefParser
 {
 private:
+    int dbu=2000;
     QStringList codeList;
 
     int getPin(int i, LEF::cell &c)
@@ -27,8 +28,8 @@ private:
             else if(stri.indexOf("RECT ")!=-1)
             {
                 rect r=rect::getRect(stri,c.sizeA1,c.sizeA2);
+                r.plusDbu(dbu);
                 p.allRect.push_back(pinRect(r));
-
             }
             else if(stri.indexOf("END "+p.name)!=-1)
             {
@@ -54,6 +55,7 @@ private:
                     if(stri.indexOf("RECT")!=-1)
                     {
                         rect r=rect::getRect(stri,c.sizeA1,c.sizeA2);
+                        r.plusDbu(dbu);
                         c.o[layerName].push_back(r);
                     }
                 }
@@ -80,13 +82,22 @@ private:
             else if(findMet)
             {
                 if(stri.indexOf("SPACING")!=-1)
+                {
                     m.spacing=help::getLastElm(stri,"SPACING").toFloat();
+                    m.spacing*=dbu;
+                }
                 else if(stri.indexOf("MINWIDTH")!=-1)
                     continue;
                 else if(stri.indexOf("WIDTH")!=-1)
+                {
                     m.minWidth=help::getLastElm(stri,"WIDTH").toFloat();
+                    m.minWidth*=dbu;
+                }
                 else if(stri.indexOf("AREA")!=-1)
+                {
                     m.area=help::getLastElm(stri,"AREA").toFloat();
+                    m.area*=dbu;
+                }
                 else if(stri.indexOf("DIRECTION")!=-1)
                 {
                     if(stri.indexOf("VERTICAL")!=-1)
@@ -137,11 +148,20 @@ public:
             else if(findVia)
             {
                 if(stri.indexOf("LAYER VIA"+QString::number(m1))!=-1)
+                {
                     v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
+                    v.viaRect.plusDbu(dbu);
+                }
                 else if(stri.indexOf("LAYER "+m1Name)!=-1)
+                {
                     v.m1Rect=rect::getRect(codeList[i+1],-1,-1,true);
+                    v.m1Rect.plusDbu(dbu);
+                }
                 else if(stri.indexOf("LAYER "+m2Name)!=-1)
+                {
                     v.m2Rect=rect::getRect(codeList[i+1],-1,-1,true);
+                    v.m2Rect.plusDbu(dbu);
+                }
                 else if(stri.indexOf("END "+viaName)!=-1)
                     break;
             }

@@ -64,6 +64,12 @@ struct cell
                 r.setToLayout(setX,setY,dire);
         }
     }
+
+    void plusDbu(int dbu)
+    {
+        sizeA1*=dbu;
+        sizeA2*=dbu;
+    }
 };
 
 }

@@ -98,6 +98,14 @@ public:
                 return false;
         }
     }
+
+    void plusDbu(int dbu)
+    {
+        p1.x*=dbu;
+        p1.y*=dbu;
+        p2.x*=dbu;
+        p2.y*=dbu;
+    }
 };
 
 
