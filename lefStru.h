@@ -224,4 +224,9 @@ public:
             return make_tuple(pos(this->x1,yMid),pos(this->x2,yMid));
         }
     }
+
+    void expendCrossRegion(line &l)
+    {
+
+    }
 };
