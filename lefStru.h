@@ -135,23 +135,19 @@ public:
     optional<rect> checkOBS(LEF::cell &c)
     {
         QString metalName=this->metal.getName();
-        rect result;
 
-        //检查pin里的rect
-        for(LEF::pin &p : c.allPin)
+        //检查pin里的rect fix:现在没法排除起点和终点的pinRect，所以去掉
+        /*for(LEF::pin &p : c.allPin)
         {
             if(p.metal==this->metal)
             {
                 for(pinRect r : p.allRect)
                 {
                     if(r.isIntersect(this->toRect(),this->metal.spacing,this->width))
-                    {
-                        if(r.isLowerLeft(result))
-                            result=r;
-                    }
+                        return r;
                 }
             }
-        }
+        }*/
 
         //检查obs
         if (!(c.o.find(metalName) == c.o.end())) //这一层存在obs
@@ -160,17 +156,11 @@ public:
             for(rect r : allRect)
             {
                 if(r.isIntersect(this->toRect(),this->metal.spacing,this->width))
-                {
-                    if(r.isLowerLeft(result))
-                        result=r;
-                }
+                    return r;
             }
         }
 
-        if(result.isNull())
-            return optional<rect>(); //找不到相交的
-        else
-            return result;
+        return optional<rect>();
     }
 
     /*QString getPos1()

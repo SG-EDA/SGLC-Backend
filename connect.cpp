@@ -14,7 +14,7 @@ optional<rect> layout::checkNewLine(list<line> &newLine)
 {
     for(line& l : newLine)
     {
-        auto result=this->checkLine(l);
+        optional<rect> result=this->checkLine(l);
         if(result.has_value())
             return result;
     }
@@ -98,7 +98,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
             }
         }
         //检查1是否修复成功
-        auto aboveObsRect=checkNewLine(newLine);
+        optional<rect> aboveObsRect=checkNewLine(newLine);
         if(!aboveObsRect.has_value())
             return optional<list<line>>(newLine);
         else
@@ -171,7 +171,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
                     }
                 }
             }
-            auto belowObsRect=checkNewLine(newLine);
+            optional<rect> belowObsRect=checkNewLine(newLine);
             if(!belowObsRect.has_value()) //检查2是否修复成功
                 return optional<list<line>>(newLine);
             else
