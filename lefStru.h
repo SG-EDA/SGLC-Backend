@@ -27,6 +27,7 @@ struct metal
 
     QString getName() { return "METAL"+QString::number(ID); }
     bool operator==(const metal &m) { return this->ID==m.ID; }
+    bool operator!=(const metal &m) { return this->ID!=m.ID; }
 };
 
 struct pin

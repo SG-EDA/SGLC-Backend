@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-tuple<float,float> minSwap(float a,float b)
+tuple<float,float> minSwap(float a,float b) //小的放前面
 {
     if(a>b)
         return make_tuple(b,a);
@@ -243,5 +243,182 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
         result.layer=layer;
         result.e=e;
         return result;
+    }
+}
+
+
+void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
+{
+    //查找二者最近的两个rect
+    pinRect *r1;
+    pinRect *r2;
+    tie(r1,r2,ignore)=this->getPinDist(p1,p2);
+
+    float p1x,p1y;
+    tie(p1x,p1y)=r1->getMidPos();
+    float p2x,p2y;
+    tie(p2x,p2y)=r2->getMidPos();
+    //暂时在这个位置标记r1 r2占用
+    r1->isOccupy=true;
+    r2->isOccupy=true;
+    //找到要走线的层
+    LEF::metal m1=p1.metal;
+    //求反向导线的金属层
+    LEF::metal realM2;
+    if(p2.metal.ID<m1.ID) //使得第二条导线离m2的层尽量近
+        realM2=lp.getMetal(m1.ID-1);
+    else
+        realM2=lp.getMetal(m1.ID+1);
+    //生成line矩形 l1 l2（孔在下一步生成）
+    list<line> alreadyLine;
+    GENRET result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
+    if(result.layer==-1) //无问题
+    {
+        for(line l : alreadyLine)
+            allLine.push_back(l);
+    }
+    else
+    {
+        while(1) //有问题（情况3、4）循环尝试
+        {
+            if(result.layer==2) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
+            {
+                for(line l : alreadyLine)
+                    allLine.push_back(l);
+            }
+            alreadyLine.clear(); //清空，准备在新的起终点布线
+
+            //获取上下无法绕过的矩形
+            rect aboveObsRect,belowObsRect;
+            tie(aboveObsRect,belowObsRect)=result.e;
+
+            if(result.layer==1) //解决l1遇到的问题，改变l1起点
+            {
+                aboveObsRect=aboveObsRect.getOuterBorder(m1.spacing);
+                belowObsRect=belowObsRect.getOuterBorder(m1.spacing);
+                //求新的p1x、p1y
+                if(m1.vertical == true) //判断方向竖直
+                {
+                    if(aboveObsRect.p1.x > (r1->p1.x+m1.maxNeedWidth))  //左面的块x1在pin范围内
+                    {
+                        p1x = aboveObsRect.p1.x-(m1.maxNeedWidth/2);
+                    }
+                    else if(belowObsRect.p2.x < (r1->p2.x-m1.maxNeedWidth))    //下面的块x2在pin范围内
+                    {
+                        p1x = belowObsRect.p2.x+(m1.maxNeedWidth/2);
+                    }
+                    else
+                    {
+                        //上下都不行，换层或换pin
+                        tie(m1,realM2)=this->switchMetal(m1,realM2);
+                    }
+                }
+                else    //方向水平
+                {
+                    if(aboveObsRect.p2.y < (r1->p2.y-m1.maxNeedWidth))  //上面的块y2在pin范围内
+                    {
+                        p1y = aboveObsRect.p2.y+(m1.maxNeedWidth/2);
+                    }
+                    else if(belowObsRect.p1.y > (r1->p1.y+m1.maxNeedWidth))    //下面的块y1在pin范围内
+                    {
+                        p1y = belowObsRect.p1.y-(m1.maxNeedWidth/2);
+                    }
+                    else
+                    {
+                        //上下都不行，换层或换pin
+                        tie(m1,realM2)=this->switchMetal(m1,realM2);
+                    }
+                }
+            }
+            else //解决l2遇到的问题，改变l2终点
+            {
+                aboveObsRect=aboveObsRect.getOuterBorder(realM2.spacing);
+                belowObsRect=belowObsRect.getOuterBorder(realM2.spacing);
+                //求新的p2x、p2y
+                if(realM2.vertical == true) //判断方向竖直
+                {
+                    if(aboveObsRect.p1.x > (r2->p1.x+realM2.maxNeedWidth))  //左面的块x1在pin范围内
+                    {
+                        p2x = aboveObsRect.p1.x-(realM2.maxNeedWidth/2);
+                    }
+                    else if(belowObsRect.p2.x < (r2->p2.x-realM2.maxNeedWidth))    //下面的块x2在pin范围内
+                    {
+                        p2x = belowObsRect.p2.x+(realM2.maxNeedWidth/2);
+                    }
+                    else
+                    {
+                        //上下都不行，换层或换pin
+                        tie(m1,realM2)=this->switchMetal(m1,realM2);
+                    }
+                }
+                else    //方向水平
+                {
+                    if(aboveObsRect.p2.y < (r2->p2.y-realM2.maxNeedWidth))  //上面的块y2在pin范围内
+                    {
+                        p2y = aboveObsRect.p2.y+(realM2.maxNeedWidth/2);
+                    }
+                    else if(belowObsRect.p1.y > (r2->p1.y+realM2.maxNeedWidth))    //下面的块y1在pin范围内
+                    {
+                        p2y = belowObsRect.p1.y-(realM2.maxNeedWidth/2);
+                    }
+                    else
+                    {
+                        //上下都不行，换层或换pin
+                        tie(m1,realM2)=this->switchMetal(m1,realM2);
+                    }
+                }
+                //根据之前的布线重定义起点
+                line lastLine=allLine.back();
+                p1x=lastLine.endPosX;
+                p2x=lastLine.endPosY;
+            }
+
+            result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
+
+            //检测这个结果是否可以了
+            if(result.layer==-1) //无问题
+            {
+                for(line l : alreadyLine)
+                    allLine.push_back(l);
+                break;
+            }
+        }
+    }
+    //生成孔
+    //如果第一根或最后一根导线的层和pin的层不一样，先在pin上打孔
+    auto putViaToPin=[this,&allVia](line &l, pinRect* r, LEF::pin &p)
+    {
+        if(l.metal!=p.metal)
+        {
+            float x,y;
+            tie(x,y)=l.getCrossCenter(*r);
+            //pin基本都在第一层，所以min那个一定是pin的
+            //把这via放置到xy
+            for(int i=1;i<l.metal.ID;i++)
+            {
+                LEF::via v=this->lp.getVia(i);
+                allVia.push_back(via(x,y,v,this->lp)); //fix:不能全放一个位置！这里还需要一个能决定放哪的策略
+            }
+        }
+    };
+    putViaToPin(allLine[0],r1,p1);
+    putViaToPin(allLine.back(),r2,p2);
+    //打导线之间的孔
+    for(int i=1;i<allLine.size();i++)
+    {
+        //每个和它前一个连
+        line &l1=allLine[i-1];
+        line &l2=allLine[i];
+        float x,y;
+        tie(x,y)=l1.getCrossCenter(l2);
+        //找到两根导线中下层的via
+        int minViaID,maxViaID;
+        tie(minViaID,maxViaID)=minSwap(l1.metal.ID,l2.metal.ID);
+        //把这via放置到xy
+        for(int i=minViaID;i<maxViaID;i++)
+        {
+            LEF::via v=lp.getVia(i);
+            allVia.push_back(via(x,y,v,this->lp)); //fix:不能全放一个位置！这里还需要一个能决定放哪的策略
+        }
     }
 }
