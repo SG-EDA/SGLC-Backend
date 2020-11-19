@@ -30,7 +30,7 @@ class layout
 private:
     optional<rect> checkLine(line l)
     {
-        for(LEF::cell &c : this->allCell) //fix:可以尝试只检测近邻的以剪枝
+        for(LEF::cell &c : this->allCell) //可以尝试只检测近邻的以剪枝
         {
             optional<rect> result=l.checkOBS(c);
             if(result.has_value())
@@ -40,7 +40,7 @@ private:
         rect lr=l.toRect();
         for(vector<line> &allLine : this->allNetLine)
         {
-            for(line &li : allLine) //fix:剪枝同上
+            for(line &li : allLine) //剪枝同上
             {
                 if(l.metal==li.metal)
                 {

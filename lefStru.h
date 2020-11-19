@@ -227,6 +227,69 @@ public:
 
     void expendCrossRegion(line &l)
     {
-
+        //计算中心坐标
+        float this_center_x = (this->x1 + this->x2)/2;
+        float this_center_y = (this->y1 + this->y2)/2;
+        float l_center_x    = (l.x1     + l.x2    )/2;
+        float l_center_y    = (l.y1     + l.y2    )/2;
+        //中心的相对位置
+        float location_x = this_center_x - l_center_x;
+        float location_y = this_center_y - l_center_y;
+        //计算长宽
+        float this_x = this->x2 - this->x1;
+        float this_y = this->y2 - this->y1;
+        //根据相对位置判断相交区域
+        if((location_x > 0) && (location_y > 0))    //this在右上
+        {
+            if(this_x > this_y) //this横l竖
+            {
+                this->x1 = l.x1    ;
+                l.y2     = this->y2;
+            }
+            else    //this竖l横
+            {
+                this->y1 = l.y1    ;
+                l.x2     = this->x2;
+            }
+        }
+        else if((location_x < 0) && (location_y > 0))   //在左上
+        {
+            if(this_x > this_y) //this横l竖
+            {
+                this->x2 = l.x2    ;
+                l.y2     = this->y2;
+            }
+            else    //this竖l横
+            {
+                this->y1 = l.y1    ;
+                l.x1     = this->x1;
+            }
+        }
+        else if((location_x > 0) && (location_y < 0))   //在右下
+        {
+            if(this_x > this_y) //this横l竖
+            {
+                this->x1 = l.x1    ;
+                l.y1     = this->y1;
+            }
+            else    //this竖l横
+            {
+                this->y2 = l.y2    ;
+                l.x2     = this->x2;
+            }
+        }
+        else   //在左下
+        {
+            if(this_x > this_y) //this横l竖
+            {
+                this->x2 = l.x2    ;
+                l.y1     = this->y1;
+            }
+            else    //this竖l横
+            {
+                this->y2 = l.y2    ;
+                l.x1     = this->x1;
+            }
+        }
     }
 };
