@@ -54,6 +54,17 @@ private:
         return optional<rect>();
     }
 
+    tuple<LEF::metal,LEF::metal> switchMetal(LEF::metal m1, LEF::metal m2)
+    {
+        int maxNewMetal=max(m1.ID+2,m2.ID+2);
+        if(maxNewMetal>=this->lp.allMetal.size())
+            throw "all Metal disabled";
+        //都上移两层（因为都是从下层开始的）
+        LEF::metal newM1=this->lp.getMetal(m1.ID+2);
+        LEF::metal newM2=this->lp.getMetal(m2.ID+2);
+        return make_tuple(newM1,newM2);
+    }
+
     void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
     {
         //查找二者最近的两个rect
@@ -116,7 +127,8 @@ private:
                         }
                         else
                         {
-                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
+                            //上下都不行，换层或换pin
+                            tie(m1,realM2)=this->switchMetal(m1,realM2);
                         }
                     }
                     else    //方向水平
@@ -131,7 +143,8 @@ private:
                         }
                         else
                         {
-                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
+                            //上下都不行，换层或换pin
+                            tie(m1,realM2)=this->switchMetal(m1,realM2);
                         }
                     }
                 }
@@ -152,7 +165,8 @@ private:
                         }
                         else
                         {
-                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
+                            //上下都不行，换层或换pin
+                            tie(m1,realM2)=this->switchMetal(m1,realM2);
                         }
                     }
                     else    //方向水平
@@ -167,7 +181,8 @@ private:
                         }
                         else
                         {
-                            throw string("NEED OTHER Metal or Pin"); //fix:上下都不行，换层或换pin
+                            //上下都不行，换层或换pin
+                            tie(m1,realM2)=this->switchMetal(m1,realM2);
                         }
                     }
                     //根据之前的布线重定义起点
@@ -176,7 +191,7 @@ private:
                     p2x=lastLine.endPosY;
                 }
 
-                GENRET result=this->genLine(p1x,p1y,p2x,p2y,p1.metal,p2.metal,alreadyLine,1);
+                result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
 
                 //检测这个结果是否可以了
                 if(result.layer==-1) //无问题
@@ -195,15 +210,26 @@ private:
 			line &l2=allLine[i];
 			float x,y;
             tie(x,y)=l1.getCrossCenter(l2);
-            //找到对应层的via
-            LEF::via v;
+            //找到两根导线中下层的via
+            int minViaID;
+            int maxViaID;
             if(l1.metal.ID<l2.metal.ID)
-                v=lp.getVia(l1.metal.ID);
+            {
+                minViaID=l1.metal.ID;
+                maxViaID=l2.metal.ID;
+            }
             else
-                v=lp.getVia(l2.metal.ID);
-            //fix:因为目前不考虑两根导线跨多层，所以两个导线必然是相邻层，直接getVia就行
+            {
+                minViaID=l2.metal.ID;
+                maxViaID=l1.metal.ID;
+            }
+            //fix:如果第0个的层和pin的层不一样，还要在pin上打孔
             //把这via放置到xy
-            allVia.push_back(via(x,y,v,this->lp));
+            for(int i=minViaID;i<maxViaID;i++)
+            {
+                LEF::via v=lp.getVia(i);
+                allVia.push_back(via(x,y,v,this->lp)); //fix:不能全放一个位置！这里还需要一个能决定放哪的策略
+            }
         }
     }
 
