@@ -56,9 +56,22 @@ private:
 
 public:
     layout l;
-    codegen(layout l) : l(l)
-    {
+    codegen(layout l) : l(l) {}
 
+    QString doGen()
+    {
+        QString result;
+        for(int i=0;i<this->l.dp.codeList.length();i++)
+        {
+            QString stri=this->l.dp.codeList[i];
+            if(stri.indexOf("DESIGN ")!=-1)
+                result+="DESIGN result ;\n";
+            else if(stri.indexOf("NETS")!=-1)
+                result+=this->genNETS(i);
+            else
+                result+=stri+"\n";
+        }
+        return result;
     }
 
     /*QString genNONDEFAULTRULES()
@@ -75,16 +88,16 @@ public:
         return result;
     }*/
 
-    QString genNETS()
+    QString genNETS(int &i)
     {
         QString result;
         //使用类似NETparser，每个net结束之后添加对应下标的line
         bool findNet=false;
         int netNum=0;
-        for(int i=0;i<this->l.dp.codeList.length();i++)
+        for(;i<this->l.dp.codeList.length();i++)
         {
             QString stri=this->l.dp.codeList[i];
-            if(stri.indexOf("NETS")!=-1)
+            if(!findNet && stri.indexOf("NETS")!=-1)
             {
                 result+=stri+"\n";
                 findNet=true;

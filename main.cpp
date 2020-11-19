@@ -32,7 +32,7 @@ int main()
     auto m=p2.getMetal(6);*/
     layout l(p1,p2);
     codegen cg(l);
-    QString result=cg.genNETS();
+    QString result=cg.doGen();
     WriteTXT("D:/result.def",result);
     return 0;
 }
