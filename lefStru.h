@@ -163,50 +163,45 @@ public:
         return optional<rect>();
     }
 
-    /*QString getPos1()
-    {
-        return "( "+QString::number(int(this->x1))+" "+QString::number(int(this->y1))+" )";
-    }
-
-    QString getPos2()
-    {
-        return "( "+QString::number(int(this->x2))+" "+QString::number(int(this->y2))+" )";
-    }*/
-	
-    tuple<float,float> getCrossCenter(line &l)
+    tuple<float,float> getCrossCenter(rect l)
     {
         float x,y;
         //计算中心坐标
         float this_center_x = (this->x1 + this->x2)/2;
         float this_center_y = (this->y1 + this->y2)/2;
-        float l_center_x    = (l.x1     + l.x2    )/2;
-        float l_center_y    = (l.y1     + l.y2    )/2;
+        float l_center_x    = (l.p1.x     + l.p2.x    )/2;
+        float l_center_y    = (l.p1.y     + l.p2.y    )/2;
         //中心的相对位置
         float location_x = this_center_x - l_center_x;
         float location_y = this_center_y - l_center_y;
         //根据相对位置判断相交区域
         if((location_x > 0) && (location_y > 0))    //this在右上
         {
-            x = (l.x2 + this->x1)/2;
-            y = (l.y2 + this->y1)/2;
+            x = (l.p2.x + this->x1)/2;
+            y = (l.p2.y + this->y1)/2;
         }
         else if((location_x < 0) && (location_y > 0))   //在左上
         {
-            x = (l.x1 + this->x2)/2;
-            y = (l.y2 + this->y1)/2;
+            x = (l.p1.x + this->x2)/2;
+            y = (l.p2.y + this->y1)/2;
         }
         else if((location_x > 0) && (location_y < 0))   //在右下
         {
-            x = (l.x2 + this->x1)/2;
-            y = (l.y1 + this->y2)/2;
+            x = (l.p2.x + this->x1)/2;
+            y = (l.p1.y + this->y2)/2;
         }
         else   //在左下
         {
-            x = (l.x1 + this->x2)/2;
-            y = (l.y1 + this->y2)/2;
+            x = (l.p1.x + this->x2)/2;
+            y = (l.p1.y + this->y2)/2;
         }
 
         return make_tuple(x,y);
+    }
+	
+    tuple<float,float> getCrossCenter(line &l)
+    {
+        return this->getCrossCenter(rect(pos(l.x1,l.y1),pos(l.x2,l.y2)));
     }
 
     tuple<pos,pos> getMidLine()
