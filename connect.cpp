@@ -280,6 +280,13 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
     }
     else
     {
+        if(result.layer!=1) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
+        {
+            for(line l : alreadyLine)
+                allLine.push_back(l);
+        }
+        alreadyLine.clear(); //清空，准备在新的起终点布线
+
         for(int i=1;i<=100;i++) //有问题（情况3、4）循环尝试
         {
             if(i==100) //最后一次循环
@@ -288,13 +295,6 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
                 tie(m1,realM2)=this->switchMetal(m1,realM2);
                 i=0;
             }
-
-            if(result.layer!=1) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
-            {
-                for(line l : alreadyLine)
-                    allLine.push_back(l);
-            }
-            alreadyLine.clear(); //清空，准备在新的起终点布线
 
             //获取上下无法绕过的矩形
             rect aboveObsRect,belowObsRect;
