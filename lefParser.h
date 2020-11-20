@@ -203,6 +203,7 @@ public:
                     break;
             }
         }
+        c.plusDbu(dbu);
         return c;
     }
 };
