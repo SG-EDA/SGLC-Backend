@@ -211,12 +211,12 @@ public:
         float dy=this->y2-this->y1;
         if(dx<dy)
         {
-            float xMid=(x2-x1)/2;
+            float xMid=(x2+x1)/2;
             return make_tuple(pos(xMid,this->y1),pos(xMid,this->y2));
         }
         else
         {
-            float yMid=(y2-y1)/2;
+            float yMid=(y2+y1)/2;
             return make_tuple(pos(this->x1,yMid),pos(this->x2,yMid));
         }
     }
