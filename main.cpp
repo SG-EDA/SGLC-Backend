@@ -27,8 +27,8 @@ void WriteTXT(string path, string text)
 
 int main(int argc, char* argv[])
 {
-    qstring lef=ReadTXT(argv[0]);
-    qstring def=ReadTXT(argv[1]);
+    qstring lef=ReadTXT(argv[2]);
+    qstring def=ReadTXT(argv[4]);
     /*qstring def=ReadTXT("D:/sample.def");
     qstring lef=ReadTXT("D:/sample.lef");*/
     defParser p1(def);
