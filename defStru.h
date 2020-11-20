@@ -1,7 +1,6 @@
 #pragma once
-#include <QString>
+#include "QString.h"
 #include <vector>
-#include <QStringList>
 #include "help.h"
 using namespace std;
 
@@ -10,18 +9,18 @@ namespace DEF
 
 struct component
 {
-    QString instName;
-    QString cellName;
+    qstring instName;
+    qstring cellName;
     float x;
     float y;
-    QString dire;
+    qstring dire;
 
-    static component get(QString stri)
+    static component get(qstring stri)
     {
         component com;
-        QStringList strList=help::splitSpace(stri);
+        qstringList strList=help::splitSpace(stri);
 
-        for(int i=0;i<strList.length();i++)
+        for(int i=0;i<strList.size();i++)
         {
             if(strList[i]=="-")
             {
@@ -45,16 +44,16 @@ struct component
 
 struct pin
 {
-    QString instName;
-    QString pinName;
+    qstring instName;
+    qstring pinName;
 };
 
 struct net
 {
-    QString name;
+    qstring name;
     vector<pin> allPin; //连接这些pin
 
-    net(QString name):name(name){}
+    net(qstring name):name(name){}
 };
 
 }

@@ -17,11 +17,11 @@ public:
     LEF::via v;
     LEF::metal m;
     via(float x,float y, LEF::via v, lefParser &lp) : x(x), y(y), v(v), m(lp.getMetal(v.m1)) {}
-    QString getName() { return "via"+QString::number(v.m1); }
+    qstring getName() { return "via"+qstring::number(v.m1); }
 
-    QString getPos()
+    qstring getPos()
     {
-        return "( "+QString::number(int(this->x))+" "+QString::number(int(this->y))+" )";
+        return "( "+qstring::number(int(this->x))+" "+qstring::number(int(this->y))+" )";
     }
 };
 
@@ -67,7 +67,7 @@ private:
 
     void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia);
 
-    LEF::pin findLEFPin(QString instName, QString pinName)
+    LEF::pin findLEFPin(qstring instName, qstring pinName)
     {
         for(LEF::cell &c : this->allCell)
         {

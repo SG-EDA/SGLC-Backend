@@ -1,30 +1,34 @@
 #include <iostream>
 #include "codegen.h"
-#include <QFile>
-#include <QTextStream>
+#include <fstream>
 
 using namespace std;
 
-QString ReadTXT(QString path)
+string ReadTXT(qstring path)
 {
-    QFile f(path);
-    f.open(QIODevice::ReadOnly);
-    QTextStream text(&f);
-    return text.readAll();
+    ifstream ifs(path);
+
+    if (ifs.fail()) {
+        cout << "文件不能打开" << endl;
+    }
+    string ss((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+
+    ifs.close();
+    return ss;
 }
 
-void WriteTXT(QString path, QString text)
+void WriteTXT(string path, string text)
 {
-   QFile f(path);
-   f.open(QFile::Text|QFile::Append);
-   QTextStream out(&f);
-   out<<text;
+    fstream op;
+    op.open(path, ios::out);
+    op<<text;
+    op.close();
 }
 
 int main()
 {
-    QString def=ReadTXT("D:/sample.def");
-    QString lef=ReadTXT("D:/sample.lef");
+    qstring def=ReadTXT("D:/sample.def");
+    qstring lef=ReadTXT("D:/sample.lef");
     defParser p1(def);
     lefParser p2(lef,1,8);
     /*auto c=p2.getCell("CELL2");
@@ -32,7 +36,7 @@ int main()
     auto m=p2.getMetal(6);*/
     layout l(p1,p2);
     codegen cg(l);
-    QString result=cg.doGen();
+    qstring result=cg.doGen();
     WriteTXT("D:/result.def",result);
     return 0;
 }

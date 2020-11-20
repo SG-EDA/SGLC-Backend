@@ -25,36 +25,36 @@ struct metal
     float area=-1; //-1为无约束
     bool vertical; //false为horizontal
 
-    QString getName() { return "METAL"+QString::number(ID); }
+    qstring getName() { return "METAL"+qstring::number(ID); }
     bool operator==(const metal &m) { return this->ID==m.ID; }
     bool operator!=(const metal &m) { return this->ID!=m.ID; }
 };
 
 struct pin
 {
-    QString name;
+    qstring name;
     LEF::metal metal;
     vector<pinRect> allRect;
 
-    void setToLayout(float setX, float setY, QString dire)
+    void setToLayout(float setX, float setY, qstring dire)
     {
         for(pinRect &r : this->allRect)
             r.setToLayout(setX,setY,dire);
     }
 };
 
-typedef map<QString,vector<rect>> obs; //金属,obs块
+typedef map<qstring,vector<rect>> obs; //金属,obs块
 
 struct cell
 {
-    QString cellName;
-    QString instName; //用于在layout中反查使用
+    qstring cellName;
+    qstring instName; //用于在layout中反查使用
     float sizeA1;
     float sizeA2;
     vector<pin> allPin;
     obs o;
 
-    void setToLayout(float setX, float setY, QString dire)
+    void setToLayout(float setX, float setY, qstring dire)
     {
         for(pin &p : this->allPin)
             p.setToLayout(setX,setY,dire);
@@ -135,7 +135,7 @@ public:
 
     optional<rect> checkOBS(LEF::cell &c)
     {
-        QString metalName=this->metal.getName();
+        qstring metalName=this->metal.getName();
 
         //检查pin里的rect fix:现在没法排除起点和终点的pinRect，所以去掉
         /*for(LEF::pin &p : c.allPin)

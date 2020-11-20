@@ -5,18 +5,18 @@ class codegen
 {
 private:
     //处理一个net，在后面添加line和via。返回处理完的行下标
-    int genNet(int i,QString &result,vector<line> &allLine, vector<via> &allVia)
+    int genNet(int i,qstring &result,vector<line> &allLine, vector<via> &allVia)
     {
         result+=this->l.dp.codeList[i]+"\n"; //把net那行加进去
         i++;
 
-        for(;i<this->l.dp.codeList.length();i++)
+        for(;i<this->l.dp.codeList.size();i++)
         {
-            QString stri=this->l.dp.codeList[i];
+            qstring stri=this->l.dp.codeList[i];
             result+=stri+"\n";
             //向下探测有没有到结尾
-            QString stri2=this->l.dp.codeList[i+1];
-            if(stri2.indexOf(";")!=-1) //fix:目前sample里暂时没有分号非单独一行的
+            qstring stri2=this->l.dp.codeList[i+1];
+            if(stri2.find(";")) //fix:目前sample里暂时没有分号非单独一行的
             {
                 //到结尾了
                 if(!allLine.empty())
@@ -58,15 +58,15 @@ public:
     layout l;
     codegen(layout l) : l(l) {}
 
-    QString doGen()
+    qstring doGen()
     {
-        QString result;
-        for(int i=0;i<this->l.dp.codeList.length();i++)
+        qstring result;
+        for(int i=0;i<this->l.dp.codeList.size();i++)
         {
-            QString stri=this->l.dp.codeList[i];
-            if(stri.indexOf("DESIGN ")!=-1)
+            qstring stri=this->l.dp.codeList[i];
+            if(stri.find("DESIGN "))
                 result+="DESIGN result ;\n";
-            else if(stri.indexOf("NETS")!=-1)
+            else if(stri.find("NETS"))
                 result+=this->genNETS(i);
             else
                 result+=stri+"\n";
@@ -88,16 +88,16 @@ public:
         return result;
     }*/
 
-    QString genNETS(int &i)
+    qstring genNETS(int &i)
     {
-        QString result;
+        qstring result;
         //使用类似NETparser，每个net结束之后添加对应下标的line
         bool findNet=false;
         int netNum=0;
-        for(;i<this->l.dp.codeList.length();i++)
+        for(;i<this->l.dp.codeList.size();i++)
         {
-            QString stri=this->l.dp.codeList[i];
-            if(!findNet && stri.indexOf("NETS")!=-1)
+            qstring stri=this->l.dp.codeList[i];
+            if(!findNet && stri.find("NETS"))
             {
                 result+=stri+"\n";
                 findNet=true;
@@ -105,13 +105,13 @@ public:
 
             if(findNet)
             {
-                if(stri.indexOf("net")!=-1) //如果碰到一个net，转到genNet里去把这个处理完
+                if(stri.find("net")) //如果碰到一个net，转到genNet里去把这个处理完
                 {
                     i=this->genNet(i,result,l.allNetLine[netNum],l.allNetVia[netNum]);
                     netNum++;
                 }
 
-                if(stri.indexOf("END NETS")!=-1)
+                if(stri.find("END NETS"))
                 {
                     //END这句不会在前面添加到findNet里面去
                     result+=stri+"\n";

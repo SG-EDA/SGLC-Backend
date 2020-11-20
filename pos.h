@@ -1,5 +1,5 @@
 #pragma once
-#include <QString>
+#include "QString.h"
 
 class pos
 {
@@ -67,7 +67,7 @@ public:
     pos(float x,float y) : x(x), y(y), isOrigin(false), inLayout(true) {}
     pos(){} //洞
 
-    void setDire(QString dire)
+    void setDire(qstring dire)
     {
         if(dire=="S")
             this->toS();
@@ -96,8 +96,8 @@ public:
     bool getIsOrigin() { return this->isOrigin; }
     bool getInLayout() { return this->inLayout; }
 
-    QString toStr()
+    qstring toStr()
     {
-        return "( "+QString::number(int(this->x))+" "+QString::number(int(this->y))+" )";
+        return "( "+qstring::number(int(this->x))+" "+qstring::number(int(this->y))+" )";
     }
 };

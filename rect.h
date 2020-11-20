@@ -1,7 +1,6 @@
 #pragma once
 #include "pos.h"
-#include <QString>
-#include <QStringList>
+#include "QString.h"
 #include "help.h"
 #include <tuple>
 using namespace std;
@@ -16,10 +15,10 @@ public:
 
     bool isNull() const { return p1.x==0 && p1.y==0 && p2.x==0 && p2.y==0; }
 
-    static rect getRect(QString stri, float w=-1, float h=-1, bool isOrigin=false)
+    static rect getRect(qstring stri, float w=-1, float h=-1, bool isOrigin=false)
     {
-        QStringList strList=help::splitSpace(stri);
-        for(int i=0;i<strList.length();i++)
+        qstringList strList=help::splitSpace(stri);
+        for(int i=0;i<strList.size();i++)
         {
             float x1,y1,x2,y2;
             if(strList[i]=="RECT")
@@ -36,7 +35,7 @@ public:
         }
     }
 
-    void setToLayout(float setX, float setY, QString dire)
+    void setToLayout(float setX, float setY, qstring dire)
     {
         this->p1.setDire(dire);
         this->p1.setToLayout(setX,setY);

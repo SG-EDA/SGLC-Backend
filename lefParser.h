@@ -1,13 +1,12 @@
 #pragma once
 #include "lefStru.h"
 #include "help.h"
-#include <QStringList>
 
 class lefParser
 {
 private:
     int dbu=2000;
-    QStringList codeList;
+    qstringList codeList;
 
     int getPin(int i, LEF::cell &c)
     {
@@ -16,22 +15,22 @@ private:
         p.name=help::getLastElm(this->codeList[i],"PIN");
         i++;
         //实际读内容
-        for(int j=i;j<this->codeList.length();j++)
+        for(int j=i;j<this->codeList.size();j++)
         {
-            QString stri=this->codeList[j];
-            if(stri.indexOf("LAYER")!=-1)
+            qstring stri=this->codeList[j];
+            if(stri.find("LAYER"))
             {
-                QString layer=help::getLastElm(stri,"LAYER");
-                int m=QString(layer[layer.size()-1]).toInt();
+                qstring layer=help::getLastElm(stri,"LAYER");
+                int m=qstring(layer[layer.size()-1]).toInt();
                 p.metal=this->getMetal(m);
             }
-            else if(stri.indexOf("RECT ")!=-1)
+            else if(stri.find("RECT "))
             {
                 rect r=rect::getRect(stri,c.sizeA1,c.sizeA2);
                 r.plusDbu(dbu);
                 p.allRect.push_back(pinRect(r));
             }
-            else if(stri.indexOf("END "+p.name)!=-1)
+            else if(stri.find("END "+p.name))
             {
                 c.allPin.push_back(p);
                 return j;
@@ -42,24 +41,24 @@ private:
 
     int getOBS(int i, LEF::cell &c)
     {
-        QString layerName;
-        for(int j=i;i<this->codeList.length();j++)
+        qstring layerName;
+        for(int j=i;i<this->codeList.size();j++)
         {
-            QString stri=this->codeList[j];
-            if(stri.indexOf("LAYER")!=-1)
+            qstring stri=this->codeList[j];
+            if(stri.find("LAYER"))
                 layerName=help::getLastElm(stri,"LAYER");
             else
             {
                 if(layerName!="")
                 {
-                    if(stri.indexOf("RECT")!=-1)
+                    if(stri.find("RECT"))
                     {
                         rect r=rect::getRect(stri,c.sizeA1,c.sizeA2);
                         r.plusDbu(dbu);
                         c.o[layerName].push_back(r);
                     }
                 }
-                if(stri.indexOf("END")!=-1)
+                if(stri.find("END"))
                     return j;
             }
         }
@@ -68,12 +67,12 @@ private:
 
     LEF::metal _getMetal(int _m)
     {
-        QString metalName="METAL"+QString::number(_m);
+        qstring metalName="METAL"+qstring::number(_m);
         LEF::metal m;
         bool findMet=false;
-        for(int i=0;i<codeList.length();i++)
+        for(int i=0;i<codeList.size();i++)
         {
-            QString stri=codeList[i];
+            qstring stri=codeList[i];
             if(findMet==false && stri=="LAYER "+metalName) //找到metal位置，进状态
             {
                 m.ID=_m;
@@ -81,26 +80,26 @@ private:
             }
             else if(findMet)
             {
-                if(stri.indexOf("SPACING")!=-1)
+                if(stri.find("SPACING"))
                 {
                     m.spacing=help::getLastElm(stri,"SPACING").toFloat();
                     m.spacing*=dbu;
                 }
-                else if(stri.indexOf("MINWIDTH")!=-1)
+                else if(stri.find("MINWIDTH"))
                     continue;
-                else if(stri.indexOf("WIDTH")!=-1)
+                else if(stri.find("WIDTH"))
                 {
                     m.minWidth=help::getLastElm(stri,"WIDTH").toFloat();
                     m.minWidth*=dbu;
                 }
-                else if(stri.indexOf("AREA")!=-1)
+                else if(stri.find("AREA"))
                 {
                     m.area=help::getLastElm(stri,"AREA").toFloat();
                     m.area*=dbu;
                 }
-                else if(stri.indexOf("DIRECTION")!=-1)
+                else if(stri.find("DIRECTION"))
                 {
-                    if(stri.indexOf("VERTICAL")!=-1)
+                    if(stri.find("VERTICAL"))
                         m.vertical=true;
                     else
                         m.vertical=false;
@@ -117,7 +116,7 @@ private:
 public:
     vector<LEF::metal> allMetal;
 
-    lefParser(QString code, int minMetalID, int maxMetalID) : minMetalID(minMetalID)
+    lefParser(qstring code, int minMetalID, int maxMetalID) : minMetalID(minMetalID)
     {
         codeList=code.split("\n");
 
@@ -132,14 +131,14 @@ public:
 
     LEF::via getVia(int m1)
     {
-        QString viaName="via"+QString::number(m1);
-        QString m1Name="METAL"+QString::number(m1);
-        QString m2Name="METAL"+QString::number(m1+1);
+        qstring viaName="via"+qstring::number(m1);
+        qstring m1Name="METAL"+qstring::number(m1);
+        qstring m2Name="METAL"+qstring::number(m1+1);
         LEF::via v;
         bool findVia=false;
-        for(int i=0;i<codeList.length();i++)
+        for(int i=0;i<codeList.size();i++)
         {
-            QString stri=codeList[i];
+            qstring stri=codeList[i];
             if(findVia==false && stri=="VIA "+viaName+" DEFAULT") //找到via位置，进状态
             {
                 v.m1=m1;
@@ -147,35 +146,35 @@ public:
             }
             else if(findVia)
             {
-                if(stri.indexOf("LAYER VIA"+QString::number(m1))!=-1)
+                if(stri.find("LAYER VIA"+qstring::number(m1)))
                 {
                     v.viaRect=rect::getRect(codeList[i+1],-1,-1,true);
                     v.viaRect.plusDbu(dbu);
                 }
-                else if(stri.indexOf("LAYER "+m1Name)!=-1)
+                else if(stri.find("LAYER "+m1Name))
                 {
                     v.m1Rect=rect::getRect(codeList[i+1],-1,-1,true);
                     v.m1Rect.plusDbu(dbu);
                 }
-                else if(stri.indexOf("LAYER "+m2Name)!=-1)
+                else if(stri.find("LAYER "+m2Name))
                 {
                     v.m2Rect=rect::getRect(codeList[i+1],-1,-1,true);
                     v.m2Rect.plusDbu(dbu);
                 }
-                else if(stri.indexOf("END "+viaName)!=-1)
+                else if(stri.find("END "+viaName))
                     break;
             }
         }
         return v;
     }
 
-    LEF::cell getCell(QString cellName)
+    LEF::cell getCell(qstring cellName)
     {
         LEF::cell c;
         bool findCell=false;
-        for(int i=0;i<codeList.length();i++)
+        for(int i=0;i<codeList.size();i++)
         {
-            QString stri=codeList[i];
+            qstring stri=codeList[i];
             if(findCell==false && stri=="MACRO "+cellName) //找到CELL位置，进状态
             {
                 c.cellName=cellName;
@@ -183,9 +182,9 @@ public:
             }
             else if(findCell)
             {
-                if(stri.indexOf("SIZE")!=-1)
+                if(stri.find("SIZE"))
                 {
-                    QStringList sizeList=help::splitSpace(stri);
+                    qstringList sizeList=help::splitSpace(stri);
                     for(int j=0;j<sizeList.size();j++)
                     {
                         if(sizeList[j]=="SIZE")
@@ -196,11 +195,11 @@ public:
                         }
                     }
                 }
-                else if(stri.indexOf("PIN")!=-1)
+                else if(stri.find("PIN"))
                     i=this->getPin(i,c);
-                else if(stri.indexOf("OBS")!=-1)
+                else if(stri.find("OBS"))
                     i=this->getOBS(i+1,c);
-                else if(stri.indexOf("END "+cellName)!=-1)
+                else if(stri.find("END "+cellName))
                     break;
             }
         }

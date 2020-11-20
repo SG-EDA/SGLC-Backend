@@ -3,21 +3,21 @@
 #include <vector>
 using namespace std;
 
-class QString;
+class qstring;
 
-typedef vector<QString> QStringList;
+typedef vector<qstring> qstringList;
 
-class QString
+class qstring
 {
 private:
-    QString _replace(const string& old_value, const string& new_value)
+    qstring _replace(const string& old_value, const string& new_value)
     {
         while(true)
         {
             string::size_type pos(0);
             if( (pos=str.find(old_value)) != string::npos )
             {
-                str.replace(pos,old_value.length(),new_value);
+                str.replace(pos,old_value.size(),new_value);
             }
             else
                 break;
@@ -25,12 +25,12 @@ private:
         return str;
     }
 
-    QStringList _split(string qseperator)
+    qstringList _split(string qseperator)
     {
         string s=this->str;
         string seperator=qseperator;
 
-        QStringList result;
+        qstringList result;
         typedef string::size_type string_size;
         string_size i = 0;
 
@@ -59,8 +59,10 @@ private:
             if(flag == 0)
             ++j;
           }
-          if(i != j){
-            result.push_back(s.substr(i, j-i));
+          if(i != j)
+          {
+            string r=s.substr(i, j-i);
+            result.push_back(qstring(r));
             i = j;
           }
         }
@@ -70,29 +72,40 @@ private:
 public:
     string str;
 
-    QString() : str("") {}
-    QString(const string a) : str(a) {}
-    QString(const char* a) : str(a) {}
-    QString(const QString & a) : str(a.str) {}
-    QString(char c) : str(to_string(c)) {}
-    static QString number(int a) { return QString(to_string(a)); }
+    qstring() : str("") {}
+    qstring(const string a) : str(a) {}
+    qstring(const char* a) : str(a) {}
+    qstring(const qstring & a) : str(a.str) {}
+    qstring(char c) : str(to_string(c-48)) {}
+    static qstring number(int a) { return qstring(to_string(a)); }
 
-    QString replace(const QString& old_value, const QString& new_value)
+    qstring replace(const qstring& old_value, const qstring& new_value)
     {
         return this->_replace(old_value.str, new_value.str);
     }
 
-    QString& operator= (const QString& a)
+    qstring operator[] (int i)    //返回引用，这样才可以对返回值赋值
+    {
+        return qstring(this->str[i]);
+    }
+
+    qstring& operator= (const qstring& a)
     {
         this->str=a.str;
         return *this;
     }
 
-    //bool operator== (const string& a) { return this->str==a; }
-    bool operator== (const QString& a) { return this->str==a.str; }
-    bool operator!= (const QString& a) { return this->str!=a.str; }
+    qstring& operator= (const string &a)
+    {
+        this->str=a;
+        return *this;
+    }
 
-    QString& operator+= (const QString& a)
+    //bool operator== (const string& a) { return this->str==a; }
+    bool operator== (const qstring& a) { return this->str==a.str; }
+    bool operator!= (const qstring& a) { return this->str!=a.str; }
+
+    qstring& operator+= (const qstring& a)
     {
         this->str+=a.str;
         return *this;
@@ -103,7 +116,7 @@ public:
         return this->str[i];
     }
 
-    bool find(const QString & a)
+    bool find(const qstring & a)
     {
         return this->str.find(a.str)!=this->str.npos;
     }
@@ -112,12 +125,13 @@ public:
 
     operator string() { return this->str; }
 
-    QString operator+ (const QString &a) { return QString(this->str+a.str); }
+    bool operator<(const qstring& a) const { return this->str<a.str; }
+    qstring operator+ (const qstring &a) { return qstring(this->str+a.str); }
     //QString operator+ (const string &a) { return QString(this->str+a); }
-    friend QString operator+(const string& a, const QString& b) { return QString(a+b.str); }
+    friend qstring operator+(const string& a, const qstring& b) { return qstring(a+b.str); }
 
     unsigned int size() { return this->str.size(); }
-    QStringList split(QString qseperator) { this->_split(qseperator.str); }
+    qstringList split(qstring qseperator) { return this->_split(qseperator.str); }
     int toInt() { return atoi(this->str.c_str()); }
-    QString mid(unsigned int sub) { return this->str.substr(sub); }
+    qstring mid(unsigned int sub) { return this->str.substr(sub); }
 };

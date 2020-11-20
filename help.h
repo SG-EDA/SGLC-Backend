@@ -1,14 +1,13 @@
 #pragma once
-#include <QString>
-#include <QStringList>
+#include "QString.h"
 
 class help
 {
 public:
-    static bool VerifyNumber(QString str)
+    static bool VerifyNumber(qstring str)
     {
-        std::string temp = str.toStdString();
-        for (int i = 0; i < str.length(); i++)
+        std::string temp = str.str;
+        for (int i = 0; i < str.size(); i++)
         {
             if ((temp[i]<'0' || temp[i]>'9') && temp[i]!='.')
                 return false;
@@ -16,16 +15,16 @@ public:
         return true;
     }
 
-    static QStringList splitSpace(QString stri)
+    static qstringList splitSpace(qstring stri)
     {
         stri=stri.replace("  "," ");
         return stri.split(" ");
     }
 
-    static QString getLastElm(QString stri, QString keyword)
+    static qstring getLastElm(qstring stri, qstring keyword)
     {
-        QStringList strList=help::splitSpace(stri);
-        for(int i=0;i<strList.length();i++)
+        qstringList strList=help::splitSpace(stri);
+        for(int i=0;i<strList.size();i++)
         {
             if(strList[i]==keyword)
                 return strList[i+1];
