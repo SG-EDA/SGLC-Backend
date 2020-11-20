@@ -99,8 +99,8 @@ private:
         float div ;
         //上次计算结果
         float last;
-        int p1_rect_cnt_last;
-        int p2_rect_cnt_last;
+        int p1_rect_cnt_last=-1;
+        int p2_rect_cnt_last=-1;
 
         pinRect* p1_rect;
         pinRect* p2_rect;
@@ -111,11 +111,8 @@ private:
             if(p1_rect->isOccupy)
                 continue;
 
-            for(int p2_rect_cnt=1;p2_rect_cnt<p2.allRect.size();p2_rect_cnt++)
+            for(int p2_rect_cnt=0;p2_rect_cnt<p2.allRect.size();p2_rect_cnt++)
             {
-                if(p1_rect_cnt==p2_rect_cnt)
-                    continue;
-
                 p2_rect = &(p2.allRect[p2_rect_cnt]);
 
                 if(p2_rect->isOccupy)
@@ -129,7 +126,7 @@ private:
 
                 div = fabs(div_x) + fabs(div_y);
 
-                if((p1_rect_cnt == 0) && (p2_rect_cnt == 1))
+                if((p1_rect_cnt == 0) && (p2_rect_cnt == 0))
                 {
                     last = div ;
                     p1_rect_cnt_last = p1_rect_cnt;
