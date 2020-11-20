@@ -133,22 +133,28 @@ public:
         return rect(pos(x1,y1),pos(x2,y2));
     }
 
-    optional<rect> checkOBS(LEF::cell &c)
+    optional<rect> checkPinRect(LEF::cell &c, pinRect* r1, pinRect* r2)
     {
-        qstring metalName=this->metal.getName();
-
-        //检查pin里的rect fix:现在没法排除起点和终点的pinRect，所以去掉
-        /*for(LEF::pin &p : c.allPin)
+        //检查pin里的rect
+        for(LEF::pin &p : c.allPin)
         {
             if(p.metal==this->metal)
             {
-                for(pinRect r : p.allRect)
+                for(pinRect &r : p.allRect)
                 {
+                    if(&r==r1 || &r==r2)
+                        continue;
                     if(r.isIntersect(this->toRect(),this->metal.spacing,this->width))
                         return r;
                 }
             }
-        }*/
+        }
+        return optional<rect>();
+    }
+
+    optional<rect> checkOBS(LEF::cell &c)
+    {
+        qstring metalName=this->metal.getName();
 
         //检查obs
         if (!(c.o.find(metalName) == c.o.end())) //这一层存在obs

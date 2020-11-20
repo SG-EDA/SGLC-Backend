@@ -10,11 +10,11 @@ tuple<float,float> minSwap(float a,float b) //小的放前面
         return make_tuple(a,b);
 }
 
-optional<rect> layout::checkNewLine(list<line> &newLine)
+optional<rect> layout::checkNewLine(list<line> &newLine, pinRect *r1, pinRect *r2)
 {
     for(line& l : newLine)
     {
-        optional<rect> result=this->checkLine(l);
+        optional<rect> result=this->checkLine(l,r1,r2);
         if(result.has_value())
             return result;
     }
@@ -22,9 +22,9 @@ optional<rect> layout::checkNewLine(list<line> &newLine)
 }
 
 //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
-optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解（抛出异常）
+optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, pinRect *r1, pinRect *r2) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解（抛出异常）
 {
-    auto obsRect=this->checkLine(l);
+    auto obsRect=this->checkLine(l,r1,r2);
     if(obsRect.has_value())
     {
         rect border=obsRect.value().getOuterBorder(l.metal.spacing);
@@ -98,7 +98,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
             }
         }
         //检查1是否修复成功
-        optional<rect> aboveObsRect=checkNewLine(newLine);
+        optional<rect> aboveObsRect=checkNewLine(newLine,r1,r2);
         if(!aboveObsRect.has_value())
             return optional<list<line>>(newLine);
         else
@@ -171,7 +171,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
                     }
                 }
             }
-            optional<rect> belowObsRect=checkNewLine(newLine);
+            optional<rect> belowObsRect=checkNewLine(newLine,r1,r2);
             if(!belowObsRect.has_value()) //检查2是否修复成功
                 return optional<list<line>>(newLine);
             else
@@ -191,7 +191,8 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2) 
 
 
 GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
-                           LEF::metal m1,LEF::metal realM2, list<line> &alreadyLine, int layer)
+                           LEF::metal m1,LEF::metal realM2, list<line> &alreadyLine, int layer,
+                       pinRect *r1, pinRect *r2)
 {
     if(fabs(p1x-p2x)<0.001 && fabs(p1y-p2y)<0.001) //不需要下一根导线了，递归出口
         return GENRET();
@@ -218,12 +219,12 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     //检查l1是否碰撞
     try {
 
-    auto fixResult=fixConnect(l1,m1,realM2);
+    auto fixResult=fixConnect(l1,m1,realM2,r1,r2);
     if(!fixResult.has_value())
     {
         alreadyLine.push_back(l1); //确认无误添加
         cout<<l1.endPosX<<" "<<l1.endPosY<<" "<<p2x<<" "<<p2y<<endl;
-        return this->genLine(l1.endPosX,l1.endPosY,p2x,p2y,realM2,m1,alreadyLine,layer+1);
+        return this->genLine(l1.endPosX,l1.endPosY,p2x,p2y,realM2,m1,alreadyLine,layer+1,r1,r2);
     }
     else
     {
@@ -233,7 +234,7 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
         line lastLine=newLine.back();
         //连l2，此时l2起点变了（递归）
         cout<<lastLine.endPosX<<" "<<lastLine.endPosY<<" "<<p2x<<" "<<p2y<<endl;
-        return this->genLine(lastLine.endPosX,lastLine.endPosY,p2x,p2y,realM2,m1,alreadyLine,layer+1);
+        return this->genLine(lastLine.endPosX,lastLine.endPosY,p2x,p2y,realM2,m1,alreadyLine,layer+1,r1,r2);
     }
 
     }
@@ -271,7 +272,7 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
         realM2=lp.getMetal(m1.ID+1);
     //生成line矩形 l1 l2（孔在下一步生成）
     list<line> alreadyLine;
-    GENRET result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
+    GENRET result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1,r1,r2);
     if(result.layer==-1) //无问题
     {
         for(line l : alreadyLine)
@@ -279,9 +280,16 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
     }
     else
     {
-        while(1) //有问题（情况3、4）循环尝试
+        for(int i=1;i<=100;i++) //有问题（情况3、4）循环尝试
         {
-            if(result.layer==2) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
+            if(i==100) //最后一次循环
+            {
+                //上下都不行，换层或换pin
+                tie(m1,realM2)=this->switchMetal(m1,realM2);
+                i=0;
+            }
+
+            if(result.layer!=1) //l2遇到问题就把没问题的线先搞进去（l1遇到问题就是全清）
             {
                 for(line l : alreadyLine)
                     allLine.push_back(l);
@@ -373,7 +381,7 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
                 p2x=lastLine.endPosY;
             }
 
-            result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1);
+            result=this->genLine(p1x,p1y,p2x,p2y,m1,realM2,alreadyLine,1,r1,r2);
 
             //检测这个结果是否可以了
             if(result.layer==-1) //无问题

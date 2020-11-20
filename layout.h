@@ -28,11 +28,14 @@ public:
 class layout
 {
 private:
-    optional<rect> checkLine(line l)
+    optional<rect> checkLine(line l, pinRect* r1, pinRect* r2)
     {
         for(LEF::cell &c : this->allCell) //可以尝试只检测近邻的以剪枝
         {
-            optional<rect> result=l.checkOBS(c);
+            optional<rect> result=l.checkPinRect(c,r1,r2);
+            if(result.has_value())
+                return result;
+            result=l.checkOBS(c);
             if(result.has_value())
                 return result;
         }
@@ -67,16 +70,16 @@ private:
 
     void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia);
 
-    LEF::pin findLEFPin(qstring instName, qstring pinName)
+    LEF::pin* findLEFPin(qstring instName, qstring pinName)
     {
         for(LEF::cell &c : this->allCell)
         {
             if(c.instName==instName)
             {
-                for(LEF::pin p : c.allPin)
+                for(LEF::pin &p : c.allPin)
                 {
                     if(p.name==pinName)
-                        return p;
+                        return &p;
                 }
             }
         }
@@ -146,20 +149,20 @@ private:
         return make_tuple(p1_rect,p2_rect,last);
     }
 
-    vector<LEF::pin> toLEFPinVec(const vector<DEF::pin> &allPin)
+    vector<LEF::pin*> toLEFPinVec(const vector<DEF::pin> &allPin)
     {
-        vector<LEF::pin> result;
+        vector<LEF::pin*> result;
         for(DEF::pin i : allPin)
         {
-            LEF::pin p=this->findLEFPin(i.instName,i.pinName);
+            LEF::pin* p=this->findLEFPin(i.instName,i.pinName);
             result.push_back(p);
         }
         return result;
     }
 
-    vector<LEF::pin> sortAllPin(const vector<DEF::pin> &allPin)
+    vector<LEF::pin*> sortAllPin(const vector<DEF::pin> &allPin)
     {
-        vector<LEF::pin> LEFallPin=this->toLEFPinVec(allPin);
+        vector<LEF::pin*> LEFallPin=this->toLEFPinVec(allPin);
         float distance = 0;
         float last_distance = 0;
         int min_num = 0;
@@ -167,7 +170,7 @@ private:
         {
             for (int j = i + 1; j < LEFallPin.size() - 1; j++)
             {
-                tie(ignore,ignore,distance) = this->getPinDist(LEFallPin[i], LEFallPin[j]);
+                tie(ignore,ignore,distance) = this->getPinDist(*(LEFallPin[i]), *(LEFallPin[j]));
                 //在i后面找和i距离最小的
                 if ((i == 0) && (j == 1)) {
                     last_distance = distance;
@@ -178,7 +181,7 @@ private:
                     min_num = j;
                 }
             }
-            LEF::pin temp = LEFallPin[min_num];
+            LEF::pin* temp = LEFallPin[min_num];
             LEFallPin[min_num] = LEFallPin[i+1];
             LEFallPin[i+1] = temp;
         }
@@ -186,10 +189,11 @@ private:
     }
 
     //genLine需要的
-    optional<rect> checkNewLine(list<line> &newLine);
-    optional<list<line>> fixConnect(line l,LEF::metal m1,LEF::metal realM2);
+    optional<rect> checkNewLine(list<line> &newLine, pinRect *r1, pinRect *r2);
+    optional<list<line>> fixConnect(line l,LEF::metal m1,LEF::metal realM2, pinRect *r1, pinRect *r2);
     GENRET genLine(float p1x, float p1y, float p2x, float p2y,
-                LEF::metal m1, LEF::metal realM2, list<line> &alreadyLine, int layer); //返回值为递归层数
+                LEF::metal m1, LEF::metal realM2, list<line> &alreadyLine, int layer,
+                   pinRect *r1, pinRect *r2);
 
 public:
     defParser dp;
@@ -223,7 +227,7 @@ public:
                 auto LEFallPin=this->sortAllPin(n.allPin);
                 for(int i=1;i<LEFallPin.size();i++)
                 {
-                    this->connect(LEFallPin[i-1],LEFallPin[i],allLine,allVia);
+                    this->connect(*(LEFallPin[i-1]),*(LEFallPin[i]),allLine,allVia);
                 }
             }
 
