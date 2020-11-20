@@ -25,8 +25,12 @@ void WriteTXT(string path, string text)
     op.close();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    /*
+    qstring def=ReadTXT(argv[0]);
+    qstring lef=ReadTXT(argv[1]);
+    */
     qstring def=ReadTXT("D:/sample.def");
     qstring lef=ReadTXT("D:/sample.lef");
     defParser p1(def);
