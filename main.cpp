@@ -27,12 +27,10 @@ void WriteTXT(string path, string text)
 
 int main(int argc, char* argv[])
 {
-    /*
-    qstring def=ReadTXT(argv[0]);
-    qstring lef=ReadTXT(argv[1]);
-    */
-    qstring def=ReadTXT("D:/sample.def");
-    qstring lef=ReadTXT("D:/sample.lef");
+    qstring lef=ReadTXT(argv[0]);
+    qstring def=ReadTXT(argv[1]);
+    /*qstring def=ReadTXT("D:/sample.def");
+    qstring lef=ReadTXT("D:/sample.lef");*/
     defParser p1(def);
     lefParser p2(lef,1,8);
     /*auto c=p2.getCell("CELL2");
@@ -41,6 +39,6 @@ int main(int argc, char* argv[])
     layout l(p1,p2);
     codegen cg(l);
     qstring result=cg.doGen();
-    WriteTXT("D:/result.def",result);
+    WriteTXT("result.def",result);
     return 0;
 }
