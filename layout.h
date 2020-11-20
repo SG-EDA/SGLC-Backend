@@ -124,7 +124,7 @@ private:
                 div_x = mid_p1_x - mid_p2_x;
                 div_y = mid_p1_y - mid_p2_y;
 
-                div = abs(div_x) + abs(div_y);
+                div = fabs(div_x) + fabs(div_y);
 
                 if((p1_rect_cnt == 0) && (p2_rect_cnt == 1))
                 {

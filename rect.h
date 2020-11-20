@@ -2,6 +2,7 @@
 #include "pos.h"
 #include "QString.h"
 #include "help.h"
+#include <cmath>
 #include <tuple>
 using namespace std;
 
@@ -72,9 +73,9 @@ public:
         float r2Height=this->p2.y-this->p1.y+expand;
 
         if (
-            abs(r1_x_mid - r2_x_mid) < r1Width / 2.0 + r2Width / 2.0 //横向判断
+            fabs(r1_x_mid - r2_x_mid) < r1Width / 2.0 + r2Width / 2.0 //横向判断
             &&
-            abs(r1_y_mid - r2_y_mid) < r1Height / 2.0 + r2Height / 2.0 //纵向判断
+            fabs(r1_y_mid - r2_y_mid) < r1Height / 2.0 + r2Height / 2.0 //纵向判断
             )
         {
             return true; //碰撞
