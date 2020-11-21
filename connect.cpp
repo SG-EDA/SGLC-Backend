@@ -31,7 +31,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
         list<line> newLine; //新的导线组
         //进行修正
         //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
-        if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
+        if(l.startPosY == l.endPosY) //横向
         {
             if(l.startPosX < border.p1.x)    //从左至右
             {
@@ -105,7 +105,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
         {
             newLine.clear();
             //2.如果1的走线结果依然存在碰撞，向反方向走线
-            if((border.p1.y < l.y1) && (border.p2.y > l.y2)) //横向
+            if(l.startPosY == l.endPosY) //横向
             {
                 if(l.startPosX < border.p1.x)    //从左至右
                 {
@@ -247,14 +247,8 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     }
 }
 
-
-void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
+bool layout::connectPinRect(LEF::pin &p1, LEF::pin &p2, pinRect *r1, pinRect *r2, vector<line> &allLine, vector<via> &allVia)
 {
-    //查找二者最近的两个rect
-    pinRect *r1;
-    pinRect *r2;
-    tie(r1,r2,ignore)=this->getPinDist(p1,p2);
-
     float p1x,p1y;
     tie(p1x,p1y)=r1->getMidPos();
     float p2x,p2y;
@@ -280,6 +274,8 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
     }
     else
     {
+        try {
+
         for(int i=1;i<=100;i++) //有问题（情况3、4）循环尝试
         {
             if(i==100) //最后一次循环
@@ -391,7 +387,34 @@ void layout::connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<v
                 break;
             }
         }
+
+        }
+        catch(string) {
+            return false;
+        }
     }
+    return true;
+}
+
+
+void layout::connectPin(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
+{
+    //查找二者最近的两个rect
+    pinRect *r1;
+    pinRect *r2;
+    tie(r1,r2,ignore)=this->getMinDistPinRect(p1,p2);
+
+    bool result=this->connectPinRect(p1,p2,r1,r2,allLine,allVia);
+
+    /*while(1)
+    {
+        bool result=this->connectPinRect(p1,p2,r1,r2,allLine,allVia);
+        if(!result) //换pinRect
+            tie(r1,r2)=this->randGetPin(p1,p2);
+        else
+            break;
+    }*/
+
     //生成孔
     //如果第一根或最后一根导线的层和pin的层不一样，先在pin上打孔
     auto putViaToPin=[this,&allVia](line &l, pinRect* r, LEF::pin &p)

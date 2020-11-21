@@ -2,6 +2,7 @@
 #include "lefParser.h"
 #include "defParser.h"
 #include <list>
+#include <time.h>
 
 struct GENRET
 {
@@ -61,14 +62,16 @@ private:
     {
         int maxNewMetal=max(m1.ID+2,m2.ID+2);
         if(maxNewMetal>=this->lp.allMetal.size())
-            throw "all Metal disabled";
+            throw string("all Metal disabled");
         //都上移两层（因为都是从下层开始的）
         LEF::metal newM1=this->lp.getMetal(m1.ID+2);
         LEF::metal newM2=this->lp.getMetal(m2.ID+2);
         return make_tuple(newM1,newM2);
     }
 
-    void connect(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia);
+    void connectPin(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia);
+    bool connectPinRect(LEF::pin &p1, LEF::pin &p2, pinRect *r1, pinRect *r2,
+                        vector<line> &allLine, vector<via> &allVia);
 
     LEF::pin* findLEFPin(qstring instName, qstring pinName)
     {
@@ -86,7 +89,28 @@ private:
         throw string("LEF Pin not Found");
     }
 
-    static tuple<pinRect*,pinRect*,float> getPinDist(LEF::pin &p1, LEF::pin &p2)
+    /*static tuple<pinRect*,pinRect*> randGetPin(LEF::pin &p1, LEF::pin &p2)
+    {
+        auto random=[](unsigned int n) {
+            float num;
+            static int i;
+            float random;
+            srand(((unsigned int)(time(NULL) + i)));
+            random = (rand() % n);
+            i += 311;
+            return int(random);
+        };
+
+        while(1)
+        {
+            pinRect* p1_rect=&p1.allRect[random(p1.allRect.size())];
+            pinRect* p2_rect=&p2.allRect[random(p2.allRect.size())];
+            if(!p1_rect->isOccupy && !p2_rect->isOccupy)
+                return make_tuple(p1_rect,p2_rect);
+        }
+    }*/
+
+    static tuple<pinRect*,pinRect*,float> getMinDistPinRect(LEF::pin &p1, LEF::pin &p2)
     {
         //rect中点
         float mid_p1_x ;
@@ -126,7 +150,7 @@ private:
 
                 div = fabs(div_x) + fabs(div_y);
 
-                if((p1_rect_cnt == 0) && (p2_rect_cnt == 0))
+                if((p1_rect_cnt_last == -1) || (p2_rect_cnt_last == -1))
                 {
                     last = div ;
                     p1_rect_cnt_last = p1_rect_cnt;
@@ -140,6 +164,11 @@ private:
                 }
             }
         }
+
+        if(p1_rect_cnt_last==-1)
+            p1_rect_cnt_last=0;
+        if(p2_rect_cnt_last==-1)
+            p2_rect_cnt_last=0;
 
         p1_rect = &(p1.allRect[p1_rect_cnt_last]);
         p2_rect = &(p2.allRect[p2_rect_cnt_last]);
@@ -167,7 +196,7 @@ private:
         {
             for (int j = i + 1; j < LEFallPin.size() - 1; j++)
             {
-                tie(ignore,ignore,distance) = this->getPinDist(*(LEFallPin[i]), *(LEFallPin[j]));
+                tie(ignore,ignore,distance) = this->getMinDistPinRect(*(LEFallPin[i]), *(LEFallPin[j]));
                 //在i后面找和i距离最小的
                 if ((i == 0) && (j == 1)) {
                     last_distance = distance;
@@ -224,7 +253,7 @@ public:
                 auto LEFallPin=this->sortAllPin(n.allPin);
                 for(int i=1;i<LEFallPin.size();i++)
                 {
-                    this->connect(*(LEFallPin[i-1]),*(LEFallPin[i]),allLine,allVia);
+                    this->connectPin(*(LEFallPin[i-1]),*(LEFallPin[i]),allLine,allVia);
                 }
             }
 
