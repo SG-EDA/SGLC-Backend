@@ -33,7 +33,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
         //1.（绕过障碍矩形/走到障碍矩形的一个距目标rect最近的顶点，并在此处重新向原方向走线）
         if(l.startPosY == l.endPosY) //横向
         {
-            if(l.startPosX < border.p1.x)    //从左至右
+            if(l.startPosX < l.endPosX)    //从左至右
             {
                 if(m1.vertical == true) //竖直线是m1
                 {
@@ -66,7 +66,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
         }
         else //纵向
         {
-            if(l.startPosY < border.p1.y)   //从下至上
+            if(l.startPosY < l.endPosY)   //从下至上
             {
                 if(m1.vertical == true) //竖直线是m1
                 {
@@ -107,7 +107,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
             //2.如果1的走线结果依然存在碰撞，向反方向走线
             if(l.startPosY == l.endPosY) //横向
             {
-                if(l.startPosX < border.p1.x)    //从左至右
+                if(l.startPosX < l.endPosX)    //从左至右
                 {
                     if(m1.vertical == true) //竖直线是m1
                     {
@@ -140,7 +140,7 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
             }
             else //纵向
             {
-                if(l.startPosY < border.p1.y)   //从下至上
+                if(l.startPosY < l.endPosY)   //从下至上
                 {
                     if(m1.vertical == true) //竖直线是m1
                     {
