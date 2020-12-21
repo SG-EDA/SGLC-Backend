@@ -3,6 +3,7 @@
 #include <map>
 #include "optional.h"
 #include "rect.h"
+#include <iostream>
 using namespace std;
 
 namespace LEF
@@ -51,11 +52,15 @@ struct cell
     qstring instName; //用于在layout中反查使用
     float sizeA1;
     float sizeA2;
+    float setX=-1;
+    float setY=-1;
     vector<pin> allPin;
     obs o;
 
-    void setToLayout(float setX, float setY, qstring dire)
+    void setToLayout(float setX, float setY, qstring dire="N")
     {
+        this->setX=setX;
+        this->setY=setY;
         for(pin &p : this->allPin)
             p.setToLayout(setX,setY,dire);
         for(auto &p : this->o)
@@ -64,6 +69,11 @@ struct cell
             for(rect &r : allRect)
                 r.setToLayout(setX,setY,dire);
         }
+    }
+
+    void setDire(qstring dire) //禁止在未调用setToLayout的情况下调用
+    {
+        this->setToLayout(this->setX,this->setY,dire);
     }
 
     void plusDbu(int dbu)
@@ -100,6 +110,9 @@ public:
             this->width=metal.minWidth;
         else
             this->width=width;
+
+        if(this->y1<1 || this->y2<1 ||this->x1<1 || this->x2<1)
+            cout<<y2<<endl;
     }
 
     line(float x,float y,float y2,LEF::metal metal,
@@ -126,6 +139,9 @@ public:
             this->x1=y;
             this->x2=y2;
         }
+
+        if(this->y1<1 || this->y2<1 || this->x1<1 || this->x2<1)
+            cout<<y<<endl;
     }
 
     rect toRect()
@@ -217,12 +233,19 @@ public:
         float dy=this->y2-this->y1;
         if(dx<dy)
         {
+            if(this->y1<1)
+                cout<<y1<<endl;
+
             float xMid=(x2+x1)/2;
             return make_tuple(pos(xMid,this->y1),pos(xMid,this->y2));
         }
         else
         {
             float yMid=(y2+y1)/2;
+
+            if(yMid<1)
+                cout<<yMid<<endl;
+
             return make_tuple(pos(this->x1,yMid),pos(this->x2,yMid));
         }
     }

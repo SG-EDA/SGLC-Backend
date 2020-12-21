@@ -1,5 +1,5 @@
 #pragma once
-#include "layout.h"
+#include "router.h"
 
 class codegen
 {
@@ -55,8 +55,8 @@ private:
     }
 
 public:
-    layout l;
-    codegen(layout l) : l(l) {}
+    router l;
+    codegen(router l) : l(l) {}
 
     qstring doGen()
     {

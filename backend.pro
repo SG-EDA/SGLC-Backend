@@ -13,9 +13,9 @@ HEADERS += \
     defParser.h \
     defStru.h \
     help.h \
-    layout.h \
     lefParser.h \
     lefStru.h \
     optional.h \
     pos.h \
-    rect.h
+    rect.h \
+    router.h

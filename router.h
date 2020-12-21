@@ -26,7 +26,7 @@ public:
     }
 };
 
-class layout
+class router
 {
 private:
     optional<rect> checkLine(line l, pinRect* r1, pinRect* r2)
@@ -229,7 +229,7 @@ public:
     vector<vector<via>> allNetVia;
     vector<LEF::cell> allCell; //版图中放置的所有cell（转换为版图坐标系）
 
-    layout(defParser dp, lefParser lp) : dp(dp), lp(lp)
+    router(defParser dp, lefParser lp) : dp(dp), lp(lp)
     {
         for(DEF::component &c : dp.allComponent)
         {

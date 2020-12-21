@@ -1,4 +1,4 @@
-#include "layout.h"
+#include "router.h"
 #include <iostream>
 using namespace std;
 
@@ -10,7 +10,7 @@ tuple<float,float> minSwap(float a,float b) //小的放前面
         return make_tuple(a,b);
 }
 
-optional<rect> layout::checkNewLine(list<line> &newLine, pinRect *r1, pinRect *r2)
+optional<rect> router::checkNewLine(list<line> &newLine, pinRect *r1, pinRect *r2)
 {
     for(line& l : newLine)
     {
@@ -22,7 +22,7 @@ optional<rect> layout::checkNewLine(list<line> &newLine, pinRect *r1, pinRect *r
 }
 
 //检查一条导线是否有碰撞，如果有碰撞，返回绕过后的整体导线组（list）
-optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, pinRect *r1, pinRect *r2) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解（抛出异常）
+optional<list<line>> router::fixConnect(line l,LEF::metal m1,LEF::metal realM2, pinRect *r1, pinRect *r2) //算上异常返回有三种情况：没有（新导线组）、有和暂时无解（抛出异常）
 {
     auto obsRect=this->checkLine(l,r1,r2);
     if(obsRect.has_value())
@@ -190,12 +190,17 @@ optional<list<line>> layout::fixConnect(line l,LEF::metal m1,LEF::metal realM2, 
 }
 
 
-GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
+GENRET router::genLine(float p1x,float p1y,float p2x,float p2y,
                            LEF::metal m1,LEF::metal realM2, list<line> &alreadyLine, int layer,
                        pinRect *r1, pinRect *r2)
 {
     if(fabs(p1x-p2x)<0.001 && fabs(p1y-p2y)<0.001) //不需要下一根导线了，递归出口
         return GENRET();
+    if(layer==400)
+    {
+        alreadyLine.clear();
+        return GENRET();
+    }
 
     //求第一条导线
     line l1;
@@ -247,7 +252,7 @@ GENRET layout::genLine(float p1x,float p1y,float p2x,float p2y,
     }
 }
 
-bool layout::connectPinRect(LEF::pin &p1, LEF::pin &p2, pinRect *r1, pinRect *r2, vector<line> &allLine, vector<via> &allVia)
+bool router::connectPinRect(LEF::pin &p1, LEF::pin &p2, pinRect *r1, pinRect *r2, vector<line> &allLine, vector<via> &allVia)
 {
     float p1x,p1y;
     tie(p1x,p1y)=r1->getMidPos();
@@ -397,7 +402,7 @@ bool layout::connectPinRect(LEF::pin &p1, LEF::pin &p2, pinRect *r1, pinRect *r2
 }
 
 
-void layout::connectPin(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
+void router::connectPin(LEF::pin &p1, LEF::pin &p2, vector<line> &allLine, vector<via> &allVia)
 {
     //查找二者最近的两个rect
     pinRect *r1;
